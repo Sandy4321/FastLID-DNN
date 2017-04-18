@@ -39,3 +39,7 @@ luac.out
 *.x86_64
 *.hex
 
+
+
+# PROJECT-SPECIFIC CUSTOM IGNORES
+data/lid07e1/*
