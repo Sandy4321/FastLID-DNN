@@ -42,4 +42,4 @@ luac.out
 
 
 # PROJECT-SPECIFIC CUSTOM IGNORES
-data/lid07e1/*
+data_prep/data/2003_nist_lrd/*
