@@ -15,8 +15,11 @@ elif [ $1 == "vad" ]; then
 elif [ $1 == "delta" ]; then
     echo "Starting from delta and delta-delta feature generation"
     stage=4
+elif [ $1 == "label" ]; then
+    echo "Starting from feature labeling"
+    stage=5
 else
-    echo "Must specify a starting point: must be one of prep, mfcc or delta"
+    echo "Must specify a starting point: must be one of prep, mfcc, delta or label"
     exit 1
 fi
 
@@ -55,10 +58,17 @@ fi
 
 if [ $stage -le 4 ]; then
     echo "Making delta and delta-delta MFCCs..."
-    add-deltas --delta-order=2 scp:$data_train/feats.scp ark,t:$featdir/all_train.ark
-    add-deltas --delta-order=2 scp:$data_test/feats.scp ark,t:$featdir/all_test.ark
+    add-deltas --delta-order=2 scp:$data_train/feats.scp ark,t:$featdir/features_train.ark
+    add-deltas --delta-order=2 scp:$data_test/feats.scp ark,t:$featdir/features_test.ark
     echo "Delta and delta-delta MFCCs complete!"
 fi
 
-# All done!
+if [ $stage -le 5 ]; then
+    echo "Making labeled feature set..."
+    python local/label_features.py $featdir/features_train.ark $data_train/utt2lang
+    python local/label_features.py $featdir/features_test.ark $data_test/utt2lang
+    echo "Labeled feature set complete!"
+fi
+
+echo "All done!"
 exit 0;

@@ -35,7 +35,7 @@ n=`cat $dir/test.flist | wc -l`
 [ $n -eq $lre03_test_n ] || echo "Unexpected number of test files $n versus $lre03_test_n"
 cp $lre03_test/3/seg_lang.ndx $dir/test_lang.ndx
 
-# Mark the languages we care about --- all others are out-of-set (oos)
+# Mark the languages we care about --- all others are out-of-set
 languages=( english german mandarin )
 
 for x in train test; do

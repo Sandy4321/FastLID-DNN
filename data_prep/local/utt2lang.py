@@ -29,6 +29,6 @@ with open(wav_scp_filename, 'r') as wav_scp:
 
                     # Check if language is out-of-set
                     if seg_lang not in languages_list:
-                        seg_lang = "oos"
+                        seg_lang = "outofset"
                     
                     utt2lang.write("%s %s\n" % (utt, seg_lang))
