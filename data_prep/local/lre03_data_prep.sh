@@ -45,14 +45,22 @@ for x in train test; do
     # turn it into one that has a valid .wav format in the modern sense (i.e. RIFF format, not sphere).
     # This file goes into its final location
     mkdir -p $data/$x
-    awk '{printf("%s '$sph2pipe' -f wav %s |\n", $1, $2);}' < $dir/${x}_sph.scp > data/$x/wav.scp
+    awk '{printf("%s '$sph2pipe' -p -f wav %s |\n", $1, $2);}' < $dir/${x}_sph.scp > data/$x/wav.scp
 
     # now get the "utt2lang" file that says, for each utterance, the language or out-of-set
     printf "%s\n" "${languages[@]}" > $data/$x/languages
     python $local/utt2lang.py $data/$x $dir/${x}_lang.ndx
+    sort $data/$x/utt2lang_unsorted > $data/$x/utt2lang
 
     # create the file that maps from language to utterance-list.
     python $local/utt2lang_to_lang2utt.py $data/$x
+
+    # Now to create files required for built-in Kaldi stuff
+    # get the "utt2spk" file that says, for each utterance, the speaker name.
+    # because LRE 2003 does not have speaker names, we simply map utterance ids to speakers here.
+    python $local/utt2spk_dumb.py $data/$x
+    # create the file that maps from "speaker" to utterance-list.
+    utils/utt2spk_to_spk2utt.pl <$data/$x/utt2spk >$data/$x/spk2utt
 done
 
 # All done!

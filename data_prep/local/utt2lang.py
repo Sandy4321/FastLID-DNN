@@ -6,10 +6,11 @@ if len(sys.argv) != 3:
 
 data_root = sys.argv[1]
 wav_scp_filename = "%s/wav.scp" % data_root
-utt2lang_filename = "%s/utt2lang" % data_root
+utt2lang_filename = "%s/utt2lang_unsorted" % data_root
 languages_filename = "%s/languages" % data_root
 seg_lang_ndx_filename = sys.argv[2]
 
+utt2lang_lines = []
 with open(wav_scp_filename, 'r') as wav_scp:
     with open(seg_lang_ndx_filename, 'r') as seg_lang_ndx:
         with open(languages_filename, 'r') as languages:
@@ -29,5 +30,5 @@ with open(wav_scp_filename, 'r') as wav_scp:
                     # Check if language is out-of-set
                     if seg_lang not in languages_list:
                         seg_lang = "oos"
-
+                    
                     utt2lang.write("%s %s\n" % (utt, seg_lang))

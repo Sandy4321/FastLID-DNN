@@ -3,14 +3,16 @@
 # Copyright 2009-2012  Microsoft Corporation  Johns Hopkins University (Author: Daniel Povey)
 # Apache 2.0.
 
-dir=`pwd`/data/local/data
+data=`pwd`/data
+train=$data/train
+test=$data/test
 local=`pwd`/local
-utils=`pwd`/utils
 
-cd $dir
+# Run raw VAD to determine frames with activity
+compute-vad scp:$train/feats.scp ark,t:$train/train_vad.ark
+compute-vad scp:$test/feats.scp ark,t:$test/test_vad.ark
 
-# Create scp's with wav's
-awk '{printf("%s '$sph2pipe' -f wav %s |\n", $1, $2);}' < ${x}_sph.scp > ${x}_wav.scp
+# TODO: use other script to get just the features in frames with activity
 
 # All done!
 echo "VAD-based pruning succeeded"

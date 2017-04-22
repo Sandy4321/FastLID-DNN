@@ -43,4 +43,6 @@ luac.out
 
 # PROJECT-SPECIFIC CUSTOM IGNORES
 data_prep/data/*
+data_prep/exp/*
+data_prep/feats/*
 
