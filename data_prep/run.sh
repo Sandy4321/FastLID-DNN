@@ -7,13 +7,11 @@
 # This is a shell script, but it's recommended that you run the commands one by
 # one by copying and pasting into the shell.
 
-lre07=/pool001/atitus/lid07e1/
-
 # convert sphere data to wav files, along with proper scp and ark files
-local/data_prep.sh $lre07 || exit 1;
+local/lre03_data_prep.sh || exit 1;
 
 # voice-activity detection to remove silence from utterances
-local/vad.sh || exit 1;
+# local/vad.sh || exit 1;
 
 # Now make MFCC features.
 # mfccdir should be some place with a largish disk where you
