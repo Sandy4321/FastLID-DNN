@@ -12,11 +12,18 @@ elif [ $1 == "mfcc" ]; then
 elif [ $1 == "vad" ]; then
     echo "Starting from voice-activity detection (VAD)"
     stage=3
+elif [ $1 == "delta" ]; then
+    echo "Starting from delta and delta-delta feature generation"
+    stage=4
 else
-    echo "Must specify a starting point: must be one of prep, mfcc or vad"
+    echo "Must specify a starting point: must be one of prep, mfcc or delta"
     exit 1
 fi
 
+data=`pwd`/data
+data_train=$data/train
+data_test=$data/test
+featdir=`pwd`/feats
 
 if [ $stage -le 1 ]; then
     echo "Preparing data..."
@@ -28,7 +35,6 @@ fi
 if [ $stage -le 2 ]; then
     echo "Making MFCCs..."
     # Now make MFCC features.
-    featdir=feats
     for x in test train; do
         steps/make_mfcc.sh --cmd "$train_cmd" --nj $NUM_JOBS --mfcc-config conf/mfcc.conf \
             data/$x exp/make_feats/$x $featdir || exit 1;
@@ -45,6 +51,13 @@ if [ $stage -le 3 ]; then
     # voice-activity detection to remove silence from utterances
     # local/vad.sh || exit 1;
     # echo "Voice-activity detection complete!"
+fi
+
+if [ $stage -le 4 ]; then
+    echo "Making delta and delta-delta MFCCs..."
+    add-deltas --delta-order=2 scp:$data_train/feats.scp ark,t:$featdir/all_train.ark
+    add-deltas --delta-order=2 scp:$data_test/feats.scp ark,t:$featdir/all_test.ark
+    echo "Delta and delta-delta MFCCs complete!"
 fi
 
 # All done!
