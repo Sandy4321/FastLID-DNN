@@ -25,7 +25,7 @@ with open(features_ark_filename, 'r') as features_ark:
             if "[" in features_ark_line:
                 # Found a new utterance!
                 current_utt = features_ark_line[:4]
-                current_lang = utt2lang[utt]
+                current_lang = utt2lang[current_utt]
             else:
                 feature_vec = map(float, features_ark_line.split(" ")[2:-1])
                 feature_vec_str = " ".join(map(str, feature_vec))
