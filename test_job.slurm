@@ -6,15 +6,15 @@
 #SBATCH -c 4
 #SBATCH --reservation=jimglass_class_testing
 #SBATCH -p sched_engaging_default
-#SBATCH --time=03:00:00  
+#SBATCH --time=0:30:00  
 #SBATCH --exclusive  
-#SBATCH -J train_1k_1k_truncated_dropout
+#SBATCH -J dnn_test
 . /etc/profile.d/modules.sh  
 module load cuda/8.0
 module load engaging/OpenBLAS/0.2.14
 module load engaging/lua/5.3.2
 module load engaging/torch/20160128
 
-echo "TRAINING DNN MODEL"
-th train.lua
-echo "COMPLETED TRAINING"
+echo "TESTING DNN MODEL"
+th test.lua
+echo "COMPLETED TESTING"

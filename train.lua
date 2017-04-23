@@ -9,7 +9,7 @@ local features_file="/pool001/atitus/FastLID-DNN/data_prep/feats/features_train_
 local dataset_size=0
 local labels = {outofset = 1, english = 2, german = 3, mandarin = 4}
 local total_utterances=1503
-local max_utterances=100
+local max_utterances=total_utterances   -- Run 'em all!
 local current_utterance_count=0
 print("Using a total of " .. max_utterances .. " utterances of dataset")
 
@@ -54,6 +54,7 @@ local inputs = feature_dim
 local outputs = 4       -- number of classes (three languages + OOS)
 local hidden_units_1 = 1024
 local hidden_units_2 = 1024
+local dropout_prob = 0.5
 
 mlp = nn.Sequential();  -- make a multi-layer perceptron
 
@@ -61,11 +62,13 @@ mlp = nn.Sequential();  -- make a multi-layer perceptron
 mlp:add(nn.Linear(inputs, hidden_units_1))
 mlp:add(nn.Add(hidden_units_1, true))
 mlp:add(nn.ReLU())
+mlp:add(nn.Dropout(dropout_prob))
 
 -- Second hidden layer with constant bias term and ReLU activation as well
 mlp:add(nn.Linear(hidden_units_1, hidden_units_2))
 mlp:add(nn.Add(hidden_units_2, true))
 mlp:add(nn.ReLU())
+mlp:add(nn.Dropout(dropout_prob))
 
 -- Output layer with softmax layer
 mlp:add(nn.Linear(hidden_units_2, outputs))
@@ -83,12 +86,12 @@ criterion = nn.ClassNLLCriterion()
 criterion.sizeAverage = false   -- Needed since this is in non-batch mode
 criterion:cuda()
 trainer = nn.StochasticGradient(mlp, criterion)
-trainer.learningRate = 0.01
+trainer.learningRate = 0.001
 trainer.maxIteration = 100
 trainer:train(dataset)
 print("Done training neural network.")
 
 print("Saving...")
-local net_filename = "/pool001/atitus/FastLID-DNN/models/1k_1k_truncated"
+local net_filename = "/pool001/atitus/FastLID-DNN/models/1k_1k_truncated_dropout"
 torch.save(net_filename, mlp)
 print("Saved.")
