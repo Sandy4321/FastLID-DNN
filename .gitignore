@@ -45,4 +45,4 @@ luac.out
 data_prep/data/*
 data_prep/exp/*
 data_prep/feats/*
-
+models/*

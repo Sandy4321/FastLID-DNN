@@ -7,7 +7,6 @@ local feature_dim = 39  -- 13 MFCCs, 13 delta MFCCS, 13 delta-delta MFCCs
 local dataset={}
 local features_file="/pool001/atitus/FastLID-DNN/data_prep/feats/features_train_labeled"
 local dataset_size=0
---local truncated_dataset_size = 1000
 local labels = {outofset = 1, english = 2, german = 3, mandarin = 4}
 for line in io.lines(features_file) do
     -- Find utterance ID
@@ -29,11 +28,6 @@ for line in io.lines(features_file) do
     -- Add this to the dataset
     dataset[dataset_size + 1] = {feature_tensor, labels[lang]}
     dataset_size = dataset_size + 1
-
-    -- Only use part of the dataset for this toy example!
-    --if dataset_size >= truncated_dataset_size then
-    --    break
-    --end
 end
 function dataset:size() return dataset_size end
 print("Done setting up dataset.")
@@ -42,10 +36,8 @@ print("Setting up neural network...")
 
 local inputs = feature_dim
 local outputs = 4       -- number of classes (three languages + OOS)
-local hidden_units_1 = 256
-local hidden_units_2 = 256
---local hidden_units_1 = 1024     -- also arbitrary
---local hidden_units_2 = 1024     -- also arbitrary
+local hidden_units_1 = 1024
+local hidden_units_2 = 1024
 
 mlp = nn.Sequential();  -- make a multi-layer perceptron
 
@@ -75,11 +67,11 @@ criterion = nn.CrossEntropyCriterion()
 criterion:cuda()
 trainer = nn.StochasticGradient(mlp, criterion)
 trainer.learningRate = 0.001
-trainer.maxIteration = 1
+trainer.maxIteration = 1000
 trainer:train(dataset)
 print("Done training neural network.")
 
 print("Saving...")
-local net_filename = "/pool001/atitus/FastLID-DNN/models/toy2"
+local net_filename = "/pool001/atitus/FastLID-DNN/models/1k_1k"
 torch.save(net_filename, mlp)
 print("Saved.")
