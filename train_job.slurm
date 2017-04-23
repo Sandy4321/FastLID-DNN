@@ -6,9 +6,9 @@
 #SBATCH -c 4
 #SBATCH --reservation=jimglass_class_testing
 #SBATCH -p sched_engaging_default
-#SBATCH --time=03:00:00  
+#SBATCH --time=12:00:00  
 #SBATCH --exclusive  
-#SBATCH -J train_1k_1k_truncated_dropout
+#SBATCH -J train_256_256_truncated_dropout
 . /etc/profile.d/modules.sh  
 module load cuda/8.0
 module load engaging/OpenBLAS/0.2.14

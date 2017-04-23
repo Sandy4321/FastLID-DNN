@@ -9,9 +9,9 @@ local features_file="/pool001/atitus/FastLID-DNN/data_prep/feats/features_train_
 local dataset_size=0
 local labels = {outofset = 1, english = 2, german = 3, mandarin = 4}
 local total_utterances=1503
-local max_utterances=total_utterances   -- Run 'em all!
+local max_utterances=total_utterances
 local current_utterance_count=0
-print("Using a total of " .. max_utterances .. " utterances of dataset")
+print("Using a total of " .. max_utterances .. " utterances out of " .. total_utterances)
 
 local current_utterance=""
 for line in io.lines(features_file) do
@@ -52,8 +52,8 @@ print("Setting up neural network...")
 
 local inputs = feature_dim
 local outputs = 4       -- number of classes (three languages + OOS)
-local hidden_units_1 = 1024
-local hidden_units_2 = 1024
+local hidden_units_1 = 256
+local hidden_units_2 = 256
 local dropout_prob = 0.5
 
 mlp = nn.Sequential();  -- make a multi-layer perceptron
@@ -86,12 +86,12 @@ criterion = nn.ClassNLLCriterion()
 criterion.sizeAverage = false   -- Needed since this is in non-batch mode
 criterion:cuda()
 trainer = nn.StochasticGradient(mlp, criterion)
-trainer.learningRate = 0.001
+trainer.learningRate = 0.0025
 trainer.maxIteration = 100
 trainer:train(dataset)
 print("Done training neural network.")
 
 print("Saving...")
-local net_filename = "/pool001/atitus/FastLID-DNN/models/1k_1k_truncated_dropout"
+local net_filename = "/pool001/atitus/FastLID-DNN/models/256_256_dropout"
 torch.save(net_filename, mlp)
 print("Saved.")
