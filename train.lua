@@ -86,7 +86,7 @@ criterion = nn.ClassNLLCriterion()
 criterion.sizeAverage = false   -- Needed since this is in non-batch mode
 criterion:cuda()
 trainer = nn.StochasticGradient(mlp, criterion)
-trainer.learningRate = 0.0025
+trainer.learningRate = 0.001
 trainer.maxIteration = 100
 trainer:train(dataset)
 print("Done training neural network.")
