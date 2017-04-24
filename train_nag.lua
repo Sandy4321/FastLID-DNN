@@ -88,7 +88,7 @@ print("Converting network to CUDA...")
 model:cuda()
 print("Done conversion.")
 
-local batch_size = 512
+local batch_size = 1024
 print("Set batch size to " .. batch_size)
 
 print("Training neural network...")
