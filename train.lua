@@ -3,6 +3,25 @@ require "nn"
 require "cunn"
 require "optim"
 
+-- Parse command-line options
+local opt = lapp[[
+   -n,--network       (default "")          reload pretrained network
+   -f,--full                                use the full training dataset
+   -o,--optimization  (default "")          optimization: Adam | NAG 
+   -b,--batchSize     (default 128)         batch size
+   -e,--epochs        (default 100)         number of epochs in training
+   -g,--gpu                                 train on GPU
+   --netFilename      (string)              name of file to save network to
+   -t,--threads       (default 4)           number of threads
+]]
+
+-- Fix seed
+torch.manualSeed(1)
+
+-- Threads
+torch.setnumthreads(opt.threads)
+print('Set nb of threads to ' .. torch.getnumthreads())
+
 print("Setting up training dataset...")
 local feature_dim = 39  -- 13 MFCCs, 13 delta MFCCS, 13 delta-delta MFCCs
 local dataset={}
@@ -11,8 +30,12 @@ local dataset_size = 0
 local lang2label = {outofset = 1, english = 2, german = 3, mandarin = 4}
 local label2uttcount = torch.zeros(4)
 local total_utterances = 1503
-local max_utterances = total_utterances
---local max_utterances = 25
+
+-- Only use full dataset if we say so
+local max_utterances = 100
+if opt.full then
+    max_utterances = total_utterances
+end
 print("Using a total of " .. max_utterances .. " utterances out of " .. total_utterances)
 
 local current_utterance=""
@@ -44,7 +67,10 @@ for line in io.lines(features_file) do
 
         -- Read in features into a tensor
         local feature_strs = string.sub(line, lang_j + 1)
-        local feature_tensor = torch.CudaTensor(feature_dim)
+        local feature_tensor = torch.Tensor(feature_dim)
+        if opt.gpu then
+            feature_tensor = feature_tensor:cuda()
+        end
         local feature_idx = 1
         for feature_str in string.gmatch(feature_strs, "[%-]?[0-9]*%.[0-9]*") do
             feature_tensor[feature_idx] = tonumber(feature_str)
@@ -59,47 +85,62 @@ end
 function dataset:size() return dataset_size end
 print("Done setting up dataset with " .. dataset_size .. " datapoints across " .. max_utterances .. " utterances.")
 
-print("Setting up neural network...")
+if opt.network == '' then
+    print("Setting up neural network...")
+    local inputs = feature_dim
+    local outputs = 4       -- number of classes (three languages + OOS)
+    local hidden_units_1 = 1024
+    local hidden_units_2 = 1024
+    local dropout_prob = 0.5
 
-local inputs = feature_dim
-local outputs = 4       -- number of classes (three languages + OOS)
-local hidden_units_1 = 1024
-local hidden_units_2 = 1024
-local dropout_prob = 0.5
+    model = nn.Sequential();  -- make a multi-layer perceptron
 
-model = nn.Sequential();  -- make a multi-layer perceptron
+    -- First hidden layer with constant bias term and ReLU activation
+    model:add(nn.Linear(inputs, hidden_units_1))
+    model:add(nn.Add(hidden_units_1, true))
+    model:add(nn.ReLU())
+    model:add(nn.Dropout(dropout_prob))
 
--- First hidden layer with constant bias term and ReLU activation
-model:add(nn.Linear(inputs, hidden_units_1))
-model:add(nn.Add(hidden_units_1, true))
-model:add(nn.ReLU())
-model:add(nn.Dropout(dropout_prob))
+    -- Second hidden layer with constant bias term and ReLU activation as well
+    model:add(nn.Linear(hidden_units_1, hidden_units_2))
+    model:add(nn.Add(hidden_units_2, true))
+    model:add(nn.ReLU())
+    model:add(nn.Dropout(dropout_prob))
 
--- Second hidden layer with constant bias term and ReLU activation as well
-model:add(nn.Linear(hidden_units_1, hidden_units_2))
-model:add(nn.Add(hidden_units_2, true))
-model:add(nn.ReLU())
-model:add(nn.Dropout(dropout_prob))
+    -- Output layer with softmax layer
+    model:add(nn.Linear(hidden_units_2, outputs))
+    model:add(nn.LogSoftMax())
+    print("Done setting up neural network.")
+else
+    print("Loading existing neural network " .. opt.network .. "...")
+    model = torch.load(opt.network)
+    print("Loaded existing neural network " .. opt.network)
+end
 
--- Output layer with softmax layer
-model:add(nn.Linear(hidden_units_2, outputs))
-model:add(nn.LogSoftMax())
-print("Done setting up neural network.")
+-- Set up for training (i.e. activate Dropout)
+model:training()
+print("Using model:")
+print(model)
 
--- Convert our network and tensors to CUDA-compatible versions
-print("Converting network to CUDA...")
-model:cuda()
-print("Done conversion.")
+if opt.gpu then
+    -- Convert our network to CUDA-compatible version
+    print("Converting network to CUDA")
+    model = model:cuda()
+end
 
-local batch_size = 512
-print("Set batch size to " .. batch_size)
-
-print("Training neural network...")
+print("Training neural network using minibatch size " .. opt.batchSize .. "...")
 -- Use class negative log likelihood (NLL) criterion and stochastic gradient descent to train network
 -- Weights data to account for class imbalance in NIST 2003 dataset
 local weights = torch.cdiv(torch.ones(label2uttcount:size(1)), label2uttcount)
+if opt.gpu then
+    print("Converting weights to CUDA")
+    weights = weights:cuda()
+end
 local criterion = nn.ClassNLLCriterion(weights) 
-criterion:cuda()
+if opt.gpu then
+    print("Converting criterion to CUDA")
+    criterion = criterion:cuda()
+end
 print("Using class NLL criterion with weights:")
 print(weights)
 
@@ -107,22 +148,43 @@ print(weights)
 local labels = {1, 2, 3, 4}
 local confusion = optim.ConfusionMatrix(labels)
 
--- Train via Adam gradient descent
+-- Values suggested by paper
+-- https://arxiv.org/pdf/1412.6980.pdf
+local adam_config = {
+    learningRate = 0.001,
+    beta1 = 0.9,
+    beta2 = 0.999,
+    epsilon = 1e-8
+}
+
+-- Nesterov-accelerated gradient descent
+local nag_config = {
+    learningRate = 0.001,
+    momentum = 0.5
+}
+
 -- Mini-batch training with help of
 -- https://github.com/torch/demos/blob/master/train-a-digit-classifier/train-on-mnist.lua
 parameters, gradParameters = model:getParameters()
-local epochs = 150
-for epoch = 1,epochs do
+for epoch = 1,opt.epochs do
     local start_time = sys.clock()
 
+    -- Shuffle our data so we don't get mono-language minibatches
+    local shuffle = torch.randperm(dataset:size())
+
     -- Run through each of our mini-batches
-    for batch_start = 1,dataset:size(),batch_size do
+    for batch_start = 1,dataset:size(),opt.batchSize do
         -- Load our samples
-        local inputs = torch.CudaTensor(batch_size, feature_dim)
-        local targets = torch.CudaTensor(batch_size)
+        local inputs = torch.Tensor(opt.batchSize, feature_dim)
+        local targets = torch.Tensor(opt.batchSize)
+        if opt.gpu then
+            inputs = inputs:cuda()
+            targets = targets:cuda()
+        end
+
         local input_idx = 1
-        for sample_idx = batch_start, math.min(batch_start + batch_size - 1, dataset:size()) do
-            local data = dataset[sample_idx]
+        for sample_idx = batch_start, math.min(batch_start + opt.batchSize - 1, dataset:size()) do
+            local data = dataset[shuffle[sample_idx]]
             local features_tensor = data[1]
             local label = data[2] 
             inputs[input_idx] = features_tensor
@@ -145,23 +207,22 @@ for epoch = 1,epochs do
             model:backward(inputs, df_do)
 
             -- Update confusion matrix
-            for i = 1,batch_size do
+            for i = 1,opt.batchSize do
                 confusion:add(output_probs[i], targets[i])
             end
 
             -- Return f and df/dW
             return f,gradParameters
         end
-
-        -- Optimize gradient using values suggested by paper
-        -- https://arxiv.org/pdf/1412.6980.pdf
-        local adam_config = {
-            learningRate = 0.001,
-            beta1 = 0.9,
-            beta2 = 0.999,
-            epsilon = 1e-8
-        }
-        optim.adam(eval_func, parameters, adam_config)
+        
+        -- Optimize gradient
+        if opt.optimization == "Adam" then
+            optim.adam(eval_func, parameters, adam_config)
+        elseif opt.optimization == "NAG" then
+            optim.nag(eval_func, parameters, nag_config)
+        else
+            error("Unknown optimization method " .. opt.optimization)
+        end
     end
 
     -- Print time statistics
@@ -179,8 +240,7 @@ for epoch = 1,epochs do
     confusion:zero()
 
     print("Saving current network state...")
-    local net_filename = "/pool001/atitus/FastLID-DNN/models/1k_1k_adam"
-    torch.save(net_filename, model)
+    torch.save(opt.netFilename, model)
     print("Saved.")
 end
 print("Done training neural network.")
