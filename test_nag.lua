@@ -49,7 +49,7 @@ function dataset:size() return dataset_size end
 print("Done setting up dataset with " .. dataset_size .. " datapoints across " .. max_utterances .. " utterances.")
 
 print("Loading neural network...")
-local net_filename = "/pool001/atitus/FastLID-DNN/models/1k_1k_truncated_lr001"
+local net_filename = "/pool001/atitus/FastLID-DNN/models/1k_1k_nag"
 mlp = torch.load(net_filename)
 print("Done loading neural network.")
 

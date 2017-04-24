@@ -91,7 +91,7 @@ print("Converting network to CUDA...")
 model:cuda()
 print("Done conversion.")
 
-local batch_size = 1024
+local batch_size = 512
 print("Set batch size to " .. batch_size)
 
 print("Training neural network...")
@@ -107,11 +107,11 @@ print(weights)
 local labels = {1, 2, 3, 4}
 local confusion = optim.ConfusionMatrix(labels)
 
--- Train via Nesterov-accelerated gradient descent
+-- Train via Adam gradient descent
 -- Mini-batch training with help of
 -- https://github.com/torch/demos/blob/master/train-a-digit-classifier/train-on-mnist.lua
 parameters, gradParameters = model:getParameters()
-local epochs = 100
+local epochs = 150
 for epoch = 1,epochs do
     local start_time = sys.clock()
 
@@ -124,8 +124,7 @@ for epoch = 1,epochs do
         for sample_idx = batch_start, math.min(batch_start + batch_size - 1, dataset:size()) do
             local data = dataset[sample_idx]
             local features_tensor = data[1]
-            local label = data[2]
-
+            local label = data[2] 
             inputs[input_idx] = features_tensor
             targets[input_idx] = label
 
@@ -154,13 +153,15 @@ for epoch = 1,epochs do
             return f,gradParameters
         end
 
-        -- Optimize gradient
-        local nag_config = {
+        -- Optimize gradient using values suggested by paper
+        -- https://arxiv.org/pdf/1412.6980.pdf
+        local adam_config = {
             learningRate = 0.001,
-            learningRateDecay = 5e-7,
-            momentum = 0.5
+            beta1 = 0.9,
+            beta2 = 0.999,
+            epsilon = 1e-8
         }
-        optim.nag(eval_func, parameters, nag_config)
+        optim.adam(eval_func, parameters, adam_config)
     end
 
     -- Print time statistics
@@ -178,7 +179,7 @@ for epoch = 1,epochs do
     confusion:zero()
 
     print("Saving current network state...")
-    local net_filename = "/pool001/atitus/FastLID-DNN/models/1k_1k_nag"
+    local net_filename = "/pool001/atitus/FastLID-DNN/models/1k_1k_adam"
     torch.save(net_filename, model)
     print("Saved.")
 end

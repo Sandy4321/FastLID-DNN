@@ -8,13 +8,13 @@
 #SBATCH -p sched_engaging_default
 #SBATCH --time=0:30:00  
 #SBATCH --exclusive  
-#SBATCH -J dnn_test
+#SBATCH -J test_adam
 . /etc/profile.d/modules.sh  
 module load cuda/8.0
 module load engaging/OpenBLAS/0.2.14
 module load engaging/lua/5.3.2
 module load engaging/torch/20160128
 
-echo "TESTING DNN MODEL"
-th test.lua
+echo "TESTING DNN MODEL USING ADAM GRADIENT DESCENT..."
+th test_adam.lua
 echo "COMPLETED TESTING"
