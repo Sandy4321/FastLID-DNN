@@ -23,7 +23,6 @@ torch.setnumthreads(opt.threads)
 print('Set nb of threads to ' .. torch.getnumthreads())
 
 print("Setting up training dataset...")
-local feature_dim = 39  -- 13 MFCCs, 13 delta MFCCS, 13 delta-delta MFCCs
 local dataset={}
 local features_file="/pool001/atitus/FastLID-DNN/data_prep/feats/features_train_labeled"
 local dataset_size = 0
@@ -37,6 +36,8 @@ if opt.full then
     max_utterances = total_utterances
 end
 print("Using a total of " .. max_utterances .. " utterances out of " .. total_utterances)
+
+local feature_dim = 39  -- 13 MFCCs, 13 delta MFCCS, 13 delta-delta MFCCs
 
 local current_utterance=""
 local utterances_used = 0
@@ -67,7 +68,7 @@ for line in io.lines(features_file) do
 
         -- Read in features into a tensor
         local feature_strs = string.sub(line, lang_j + 1)
-        local feature_tensor = torch.Tensor(feature_dim)
+        local feature_tensor = torch.zeros(feature_dim)
         if opt.gpu then
             feature_tensor = feature_tensor:cuda()
         end
@@ -85,9 +86,11 @@ end
 function dataset:size() return dataset_size end
 print("Done setting up dataset with " .. dataset_size .. " datapoints across " .. max_utterances .. " utterances.")
 
+local context_frames = 10
 if opt.network == '' then
     print("Setting up neural network...")
-    local inputs = feature_dim
+    -- Use historical frames as context in input vector
+    local inputs = feature_dim * (context_frames + 1)
     local outputs = 4       -- number of classes (three languages + OOS)
     local hidden_units_1 = 1024
     local hidden_units_2 = 1024
@@ -175,8 +178,8 @@ for epoch = 1,opt.epochs do
     -- Run through each of our mini-batches
     for batch_start = 1,dataset:size(),opt.batchSize do
         -- Load our samples
-        local inputs = torch.Tensor(opt.batchSize, feature_dim)
-        local targets = torch.Tensor(opt.batchSize)
+        local inputs = torch.zeros(opt.batchSize, feature_dim * (context_frames + 1))
+        local targets = torch.zeros(opt.batchSize)
         if opt.gpu then
             inputs = inputs:cuda()
             targets = targets:cuda()
@@ -187,7 +190,20 @@ for epoch = 1,opt.epochs do
             local data = dataset[shuffle[sample_idx]]
             local features_tensor = data[1]
             local label = data[2] 
-            inputs[input_idx] = features_tensor
+
+            -- Load current features
+            inputs[{ input_idx, {1, feature_dim} }] = features_tensor
+
+            -- Load context features, if any
+            for context = 1, math.min(context_frames, input_idx - 1) do
+                local context_data = dataset[shuffle[sample_idx - context]]
+                local context_features_tensor = context_data[1]
+                local context_label = context_data[2] 
+                local slice_begin = (context * feature_dim) + 1
+                local slice_end = (context+1)*feature_dim
+                inputs[{ input_idx - context, {slice_begin, slice_end} }] = context_features_tensor
+            end
+
             targets[input_idx] = label
 
             input_idx = input_idx + 1

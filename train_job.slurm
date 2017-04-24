@@ -19,5 +19,6 @@ echo "TRAINING DNN MODEL"
 optim=Adam
 epochs=100
 filename=/pool001/atitus/FastLID-DNN/models/1k_1k_${optim}_${epochs}
-th train.lua --netFilename="${filename}" --gpu --full -o $optim -e $epochs
+threads=16
+th train.lua --netFilename="${filename}" --gpu --full -o $optim -e $epochs -t $threads
 echo "COMPLETED TRAINING"

@@ -19,5 +19,7 @@ echo "TESTING DNN MODEL"
 optim=Adam
 epochs=100
 network=/pool001/atitus/FastLID-DNN/models/1k_1k_${optim}_${epochs}
-th test.lua --network="${filename}" --gpu --full
-echo "COMPLETED TRAINING"
+threads=16
+echo "TESTING NETWORK WITH FILENAME ${network}"
+th test.lua --network="${network}" --gpu --full -t $threads
+echo "COMPLETED TESTING"
