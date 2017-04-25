@@ -20,6 +20,7 @@ print('Set nb of threads to ' .. torch.getnumthreads())
 
 print("Setting up testing dataset...")
 local feature_dim = 39  -- 13 MFCCs, 13 delta MFCCS, 13 delta-delta MFCCs
+local context_frames = 10
 local dataset={}
 local features_file="/pool001/atitus/FastLID-DNN/data_prep/feats/features_test_labeled"
 local dataset_size = 0
@@ -92,7 +93,7 @@ print(model)
 
 if opt.gpu then
     -- Convert our network to CUDA-compatible version
-    print("Converting network to CUDA")
+    print("Convert network to CUDA")
     model = model:cuda()
 end
 
@@ -110,14 +111,34 @@ local utterance_count = 0
 
 local start_time = sys.clock()
 
+local input = torch.zeros(feature_dim * (context_frames + 1))
+if opt.gpu then
+    -- Convert our input tensor to CUDA-compatible version
+    print("Convert input tensor to CUDA")
+    input = input:cuda()
+end
 for i=1,dataset:size() do
     local data = dataset[i]
     local feature_tensor = data[1]
     local label = data[2]
     local utt = data[3]
 
+    -- Load current features
+    input:zero()
+    input[{1, feature_dim}] = features_tensor
+
+    -- Load context features, if any
+    for context = 1, math.min(context_frames, i - 1) do
+        local context_data = dataset[i - context]
+        local context_features_tensor = context_data[1]
+        local context_label = context_data[2] 
+        local slice_begin = (context * feature_dim) + 1
+        local slice_end = (context + 1) * feature_dim
+        input[{slice_begin, slice_end}] = context_features_tensor
+    end
+
     -- Evaluate this frame
-    local output_probs = model:forward(feature_tensor)
+    local output_probs = model:forward(input)
     local confidence, classification_tensor = torch.max(output_probs, 1)
     local classification = classification_tensor[1]
     if classification == label then

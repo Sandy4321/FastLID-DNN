@@ -127,7 +127,7 @@ print(model)
 
 if opt.gpu then
     -- Convert our network to CUDA-compatible version
-    print("Converting network to CUDA")
+    print("Convert network to CUDA")
     model = model:cuda()
 end
 
@@ -136,12 +136,12 @@ print("Training neural network using minibatch size " .. opt.batchSize .. "...")
 -- Weights data to account for class imbalance in NIST 2003 dataset
 local weights = torch.cdiv(torch.ones(label2uttcount:size(1)), label2uttcount)
 if opt.gpu then
-    print("Converting weights to CUDA")
+    print("Convert weights to CUDA")
     weights = weights:cuda()
 end
 local criterion = nn.ClassNLLCriterion(weights) 
 if opt.gpu then
-    print("Converting criterion to CUDA")
+    print("Convert criterion to CUDA")
     criterion = criterion:cuda()
 end
 print("Using class NLL criterion with weights:")

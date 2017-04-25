@@ -19,6 +19,7 @@ print('Set nb of threads to ' .. torch.getnumthreads())
 
 print("Setting up testing dataset...")
 local feature_dim = 39  -- 13 MFCCs, 13 delta MFCCS, 13 delta-delta MFCCs
+local context_frames = 10
 local dataset={}
 local features_file="/pool001/atitus/FastLID-DNN/data_prep/feats/features_test_labeled"
 local dataset_size = 0
@@ -62,18 +63,18 @@ for line in io.lines(features_file) do
 
         -- Read in features into a tensor
         local feature_strs = string.sub(line, lang_j + 1)
-        local feature_tensor = torch.Tensor(feature_dim)
+        local features_tensor = torch.Tensor(feature_dim)
         if opt.gpu then
-            feature_tensor = feature_tensor:cuda()
+            features_tensor = features_tensor:cuda()
         end
         local feature_idx = 1
         for feature_str in string.gmatch(feature_strs, "[%-]?[0-9]*%.[0-9]*") do
-            feature_tensor[feature_idx] = tonumber(feature_str)
+            features_tensor[feature_idx] = tonumber(feature_str)
             feature_idx = feature_idx + 1
         end
 
         -- Add this to the dataset
-        dataset[dataset_size + 1] = {feature_tensor, label, current_utterance}
+        dataset[dataset_size + 1] = {features_tensor, label, current_utterance}
         dataset_size = dataset_size + 1
     end
 end
@@ -81,19 +82,19 @@ function dataset:size() return dataset_size end
 print("Done setting up dataset with " .. dataset_size .. " datapoints across " .. max_utterances .. " utterances.")
 
 -- Load individual DNNs for ensemble
-local english_dnn = "/pool001/atitus/FastLID-DNN/models/english_1k_1k_adam_100"
+local english_dnn = "/pool001/atitus/FastLID-DNN/models/english_1k_1k_Adam_e489_b512"
 print("Loading neural network for English " .. english_dnn .. "...")
 english_model = torch.load(english_dnn)
 print("Loaded neural network " .. english_dnn)
 print(english_model)
 
-local german_dnn = "/pool001/atitus/FastLID-DNN/models/german_1k_1k_adam_100"
+local german_dnn = "/pool001/atitus/FastLID-DNN/models/german_1k_1k_Adam_e1000_b512"
 print("Loading neural network for German " .. german_dnn .. "...")
 german_model = torch.load(german_dnn)
 print("Loaded neural network " .. german_dnn)
 print(german_model)
 
-local mandarin_dnn = "/pool001/atitus/FastLID-DNN/models/mandarin_1k_1k_adam_100"
+local mandarin_dnn = "/pool001/atitus/FastLID-DNN/models/mandarin_1k_1k_Adam_e1000_b512"
 print("Loading neural network for Mandarin Chinese " .. mandarin_dnn .. "...")
 mandarin_model = torch.load(mandarin_dnn)
 print("Loaded neural network " .. mandarin_dnn)
@@ -106,7 +107,7 @@ mandarin_model:evaluate()
 
 if opt.gpu then
     -- Convert our networks to CUDA-compatible version
-    print("Converting networks to CUDA")
+    print("Convert networks to CUDA")
     english_model = english_model:cuda()
     german_model = german_model:cuda()
     mandarin_model = mandarin_model:cuda()
@@ -116,7 +117,6 @@ end
 local labels = {1, 2, 3, 4}
 local confusion = optim.ConfusionMatrix(labels)
 
-print("Testing neural network ensemble...")
 local correct_frames = 0
 local utterance_output_avgs = {}        -- averaged output probabilities
 local utterance_frame_counts = {}       -- current count of probabilities (used for averaging)
@@ -126,35 +126,72 @@ local utterance_count = 0
 
 local start_time = sys.clock()
 
+local input = torch.zeros(feature_dim * (context_frames + 1))
+local overall_output_probs = torch.zeros(#labels)
+if opt.gpu then
+    -- Convert our tensors to CUDA-compatible version
+    print("Convert input and output tensors to CUDA")
+    input = input:cuda()
+    overall_output_probs = overall_output_probs:cuda()
+end
+
+-- Determined based on classifier convergence values
+local ensemble_weights = {english = 1.0337727964, german = 0.9372224005, mandarin = 1.029004803}
+
+print("Testing neural network ensemble...")
 for i=1,dataset:size() do
     local data = dataset[i]
-    local feature_tensor = data[1]
+    local features_tensor = data[1]
     local label = data[2]
     local utt = data[3]
 
+    -- Load current features
+    input:zero()
+    input[{ {1, feature_dim} }] = features_tensor
+
+    -- Load context features, if any
+    for context = 1, math.min(context_frames, i - 1) do
+        local context_data = dataset[i - context]
+        local context_features_tensor = context_data[1]
+        local context_label = context_data[2] 
+        local slice_begin = (context * feature_dim) + 1
+        local slice_end = (context + 1) * feature_dim
+        input[{ {slice_begin, slice_end} }] = context_features_tensor
+    end
+
     -- Evaluate this frame
     -- TODO: run these in parallel
-    local classification = 1    -- out-of-set, to start
-    local current_confidence = 0.5      -- random guess
+    local classification = lang2label["outofset"]       -- out-of-set, to start
+    local current_confidence = 0.5                      -- random guess
 
-    local english_output_probs = english_model:forward(feature_tensor)
-    if english_output_probs[2] >= current_confidence then
-        classification = lang2label[english]
+    -- Convert log probabilities (from logsoftmax layer) to probabilities
+    local english_output_logprobs = english_model:forward(input)
+    local english_output_probs = torch.exp(english_output_logprobs)
+    local english_confidence = english_output_probs[2] * ensemble_weights["english"]
+    if english_confidence >= current_confidence then
+        classification = lang2label["english"]
+        current_confidence = english_confidence
     end
     
-    local german_output_probs = german_model:forward(feature_tensor)
-    if german_output_probs[2] >= current_confidence then
-        classification = lang2label[german]
+    local german_output_logprobs = german_model:forward(input)
+    local german_output_probs = torch.exp(german_output_logprobs)
+    local german_confidence = german_output_probs[2] * ensemble_weights["german"]
+    if german_confidence >= current_confidence then
+        classification = lang2label["german"]
+        current_confidence = german_confidence
     end
-    
-    local mandarin_output_probs = mandarin_model:forward(feature_tensor)
-    if mandarin_output_probs[2] >= current_confidence then
-        classification = lang2label[mandarin]
+   
+    local mandarin_output_logprobs = mandarin_model:forward(input)
+    local mandarin_output_probs = torch.exp(mandarin_output_logprobs)
+    local mandarin_confidence = mandarin_output_probs[2] * ensemble_weights["mandarin"]
+    if mandarin_confidence >= current_confidence then
+        classification = lang2label["mandarin"]
+        current_confidence = mandarin_confidence
     end
 
-    -- Set output probs to be 100% our classification (since the sum doesn't make sense)
-    local overall_output_probs = torch.zeros(#output_probs)
-    overall_output_probs[classification] = 1.0
+    -- Set output probs to be 100% our classification (since the sum, product, etc. doesn't make sense in this context)
+    overall_output_probs:zero()
+    overall_output_probs[{ {classification} }] = current_confidence
 
     -- Check if the ensemble classified correctly
     if classification == label then
