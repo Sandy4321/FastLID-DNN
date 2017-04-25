@@ -6,20 +6,21 @@
 #SBATCH -c 4
 #SBATCH --reservation=jimglass_class_testing
 #SBATCH -p sched_engaging_default
-#SBATCH --time=08:00:00  
+#SBATCH --time=12:00:00  
 #SBATCH --exclusive  
-#SBATCH -J train
+#SBATCH -J train_language
 . /etc/profile.d/modules.sh  
 module load cuda/8.0
 module load engaging/OpenBLAS/0.2.14
 module load engaging/lua/5.3.2
 module load engaging/torch/20160128
 
-echo "TRAINING DNN MODEL"
 optim=Adam
 epochs=100
+language=mandarin
 batchsize=512
-filename=/pool001/atitus/FastLID-DNN/models/1k_1k_${optim}_e${epochs}_b${batchsize}
+echo "TRAINING DNN MODEL FOR LANGUAGE ${language}"
+filename=/pool001/atitus/FastLID-DNN/models/${language}_1k_1k_${optim}_e${epochs}_b${batchsize}
 threads=16
-th train.lua --netFilename="${filename}" --gpu --full -o $optim -e $epochs -t $threads -b $batchsize
+th train_language.lua --netFilename="${filename}" --gpu --full -o $optim -e $epochs -t $threads -l $language -b $batchsize
 echo "COMPLETED TRAINING"
