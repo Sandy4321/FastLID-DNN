@@ -16,7 +16,7 @@ module load engaging/lua/5.3.2
 module load engaging/torch/20160128
 
 optim=Adam
-epochs=100
+epochs=1000
 language=mandarin
 batchsize=512
 echo "TRAINING DNN MODEL FOR LANGUAGE ${language}"
