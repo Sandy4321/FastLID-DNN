@@ -11,7 +11,7 @@ if len(sys.argv) != 2:
 log_filename = sys.argv[1]
 
 # Read in last confusion matrix and plot it
-labels = ["oos", "english"]
+labels = ["oos", "english", "german", "mandarin"]
 num_classes = len(labels)
 conf_mat = np.zeros((num_classes, num_classes), np.float64)
 current_row = -1    # Indicates that we are not currently reading
