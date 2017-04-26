@@ -8,6 +8,7 @@ local lre03DatasetReader = require "lre03DatasetReader"
 local opt = lapp[[
    -n,--network       (default "")          reload pretrained network
    -f,--full                                use the full training dataset
+   -d,--dropout                             use dropout (50%) while training
    -o,--optimization  (default "")          optimization: Adam | NAG 
    -b,--batchSize     (default 128)         batch size
    -e,--epochs        (default 100)         number of epochs in training
@@ -31,17 +32,22 @@ local features_file="/pool001/atitus/FastLID-DNN/data_prep/feats/features_train_
 local lang2label = {outofset = 1, english = 2, german = 3, mandarin = 4}
 
 -- Only use full dataset if we say so
-local max_frames = 100
 local total_frames = 469083 
 local label2maxframes = torch.zeros(4)
 if opt.full then
     -- Force all data to be used
-    max_frames = 10 * total_frames
+    label2maxframes[lang2label["outofset"]] = total_frames
+    label2maxframes[lang2label["english"]] = total_frames
+    label2maxframes[lang2label["german"]] = total_frames
+    label2maxframes[lang2label["mandarin"]] = total_frames
+else
+    -- Balance the data
+    local min_frames = 111277   -- Count for German, the minimum in this label set
+    label2maxframes[lang2label["outofset"]] = min_frames
+    label2maxframes[lang2label["english"]] = min_frames
+    label2maxframes[lang2label["german"]] = min_frames
+    label2maxframes[lang2label["mandarin"]] = min_frames
 end
-label2maxframes[lang2label["outofset"]] = max_frames / 4
-label2maxframes[lang2label["english"]] = max_frames / 4
-label2maxframes[lang2label["german"]] = max_frames / 4
-label2maxframes[lang2label["mandarin"]] = max_frames / 4
 label2maxframes:floor()
 
 -- Load the training dataset
@@ -51,7 +57,7 @@ local readCfg = {
     features_file = features_file,
     lang2label = lang2label,
     label2maxframes = label2maxframes,
-    include_utts = false,
+    include_utts = true,
     gpu = opt.gpu
 }
 local dataset, label2uttcount = lre03DatasetReader.read(readCfg)
@@ -71,13 +77,17 @@ if opt.network == '' then
     model:add(nn.Linear(inputs, hidden_units_1))
     model:add(nn.Add(hidden_units_1, true))
     model:add(nn.ReLU())
-    model:add(nn.Dropout(dropout_prob))
+    if opt.dropout then
+        model:add(nn.Dropout(dropout_prob))
+    end
 
     -- Second hidden layer with constant bias term and ReLU activation as well
     model:add(nn.Linear(hidden_units_1, hidden_units_2))
     model:add(nn.Add(hidden_units_2, true))
     model:add(nn.ReLU())
-    model:add(nn.Dropout(dropout_prob))
+    if opt.dropout then
+        model:add(nn.Dropout(dropout_prob))
+    end
 
     -- Output layer with softmax layer
     model:add(nn.Linear(hidden_units_2, outputs))
@@ -103,18 +113,18 @@ end
 print("Training neural network using minibatch size " .. opt.batchSize .. "...")
 -- Use class negative log likelihood (NLL) criterion and stochastic gradient descent to train network
 -- Weights data to account for class imbalance in NIST 2003 dataset
-local weights = torch.cdiv(torch.ones(label2uttcount:size(1)), label2uttcount)
-if opt.gpu then
-    print("Convert weights to CUDA")
-    weights = weights:cuda()
-end
+-- local weights = torch.cdiv(torch.ones(label2uttcount:size(1)), label2uttcount)
+-- if opt.gpu then
+--     print("Convert weights to CUDA")
+--     weights = weights:cuda()
+-- end
 local criterion = nn.ClassNLLCriterion(weights) 
 if opt.gpu then
     print("Convert criterion to CUDA")
     criterion = criterion:cuda()
 end
-print("Using class NLL criterion with weights:")
-print(weights)
+-- print("Using class NLL criterion with weights:")
+-- print(weights)
 
 -- Set up confusion matrix
 local labels = {1, 2, 3, 4}
@@ -142,7 +152,7 @@ for epoch = 1,opt.epochs do
     local start_time = sys.clock()
 
     -- Shuffle our data so we don't get mono-language minibatches
-    -- local shuffle = torch.randperm(dataset:size())
+    local shuffle = torch.randperm(dataset:size())
 
     -- Run through each of our mini-batches
     for batch_start = 1,dataset:size(),opt.batchSize do
@@ -156,8 +166,8 @@ for epoch = 1,opt.epochs do
 
         local input_idx = 1
         for sample_idx = batch_start, math.min(batch_start + opt.batchSize - 1, dataset:size()) do
-            -- local data = dataset[shuffle[sample_idx]]
-            local data = dataset[sample_idx]
+            local shuffle_idx = shuffle[sample_idx]
+            local data = dataset[shuffle_idx]
             local features_tensor = data[1]
             local label = data[2] 
 
@@ -165,17 +175,22 @@ for epoch = 1,opt.epochs do
             inputs[{ input_idx, {1, feature_dim} }] = features_tensor
 
             -- Load context features, if any
-            for context = 1, math.min(context_frames, input_idx - 1) do
-                -- local context_data = dataset[shuffle[sample_idx - context]]
-                local context_data = dataset[sample_idx - context]
+            for context = 1, math.min(context_frames, shuffle_idx - 1) do
+                local context_data = dataset[shuffle_idx - context]
                 local context_features_tensor = context_data[1]
                 local context_label = context_data[2] 
-                local slice_begin = (context * feature_dim) + 1
-                local slice_end = (context+1)*feature_dim
-                inputs[{ input_idx - context, {slice_begin, slice_end} }] = context_features_tensor
+                local context_utt = context_data[3] 
+                
+                -- Don't let an utterance in another language spill over into this one!
+                if context_utt == utt then
+                    local slice_begin = (context * feature_dim) + 1
+                    local slice_end = (context+1)*feature_dim
+                    inputs[{ input_idx, {slice_begin, slice_end} }] = context_features_tensor
+                end
             end
-            targets[input_idx] = label
 
+            -- Add target label
+            targets[input_idx] = label
             input_idx = input_idx + 1
         end
 

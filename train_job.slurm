@@ -6,7 +6,7 @@
 #SBATCH -c 4
 #SBATCH --reservation=jimglass_class_testing
 #SBATCH -p sched_engaging_default
-#SBATCH --time=08:00:00  
+#SBATCH --time=12:00:00  
 #SBATCH --exclusive  
 #SBATCH -J train
 . /etc/profile.d/modules.sh  
@@ -17,9 +17,9 @@ module load engaging/torch/20160128
 
 echo "TRAINING DNN MODEL"
 optim=Adam
-epochs=100
+epochs=500
 batchsize=512
-filename=/pool001/atitus/FastLID-DNN/models/1k_1k_${optim}_e${epochs}_b${batchsize}
+filename=/pool001/atitus/FastLID-DNN/models/1k_1k_${optim}_e${epochs}_b${batchsize}_dropout
 threads=16
-th train.lua --netFilename="${filename}" --gpu --full -o $optim -e $epochs -t $threads -b $batchsize
+th train.lua --netFilename="${filename}" --gpu -o $optim -e $epochs -t $threads -b $batchsize --dropout
 echo "COMPLETED TRAINING"
