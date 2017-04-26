@@ -1,6 +1,5 @@
 require "torch"
 require "nn"
-require "cunn"
 require "optim"
 
 -- Parse command-line options
@@ -9,6 +8,10 @@ local opt = lapp[[
    -f,--full                                use the full test dataset
    -t,--threads       (default 4)           number of threads
 ]]
+
+if opt.gpu then
+    require "cunn"
+end
 
 -- Fix seed
 torch.manualSeed(1)

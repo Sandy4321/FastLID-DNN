@@ -1,7 +1,8 @@
 require "torch"
 require "nn"
-require "cunn"
 require "optim"
+
+local lre03DatasetReader = require "lre03DatasetReader"
 
 -- Parse command-line options
 local opt = lapp[[
@@ -16,6 +17,10 @@ local opt = lapp[[
    -l,--language      (string)              language to train network for
 ]]
 
+if opt.gpu then
+    require "cunn"
+end
+
 -- Fix seed
 torch.manualSeed(1)
 
@@ -23,101 +28,35 @@ torch.manualSeed(1)
 torch.setnumthreads(opt.threads)
 print('Set nb of threads to ' .. torch.getnumthreads())
 
-print("Setting up training dataset...")
-local dataset_full={}
 local features_file="/pool001/atitus/FastLID-DNN/data_prep/feats/features_train_labeled"
-local dataset_full_size = 0
 local lang2label = {outofset = 1, english = 1, german = 1, mandarin = 1}
-lang2label[opt.language] = 2    -- Only language we want to classify
-local label2uttcount = torch.zeros(2)
-local total_utterances = 1503
-local in_set_frames = 0
+lang2label[opt.language] = 2    -- Only language we want to classify as in-set
 
 -- Only use full dataset if we say so
-local max_utterances = 100
+local max_frames = 100
+local label2maxframes = torch.zeros(4)
 if opt.full then
-    max_utterances = total_utterances
+    -- Force all data to be used
+    local frames_per_language = {english = 150744, german = 24841, mandarin = 48081}
+    max_frames = frames_per_language[opt.language]
 end
-print("Using a total of " .. max_utterances .. " utterances out of " .. total_utterances)
+label2maxframes[lang2label["outofset"]] = max_frames
+label2maxframes[lang2label[opt.language]] = max_frames
+label2maxframes:floor()
+
+-- Load the training dataset
+local readCfg = {
+    features_file = features_file,
+    lang2label = lang2label,
+    label2maxframes = label2maxframes,
+    include_utts = false,
+    gpu = opt.gpu
+}
+local dataset, label2framecount = lre03DatasetReader.read(readCfg)
 
 local feature_dim = 39  -- 13 MFCCs, 13 delta MFCCS, 13 delta-delta MFCCs
-
-local current_utterance=""
-local utterances_used = 0
-local utterances_seen = 0
-for line in io.lines(features_file) do
-    -- Find utterance ID
-    local utt = string.sub(line, 1, 4)
-    if utt ~= current_utterance then
-        -- Check if we should use this utterance
-        if utterances_seen % (total_utterances / max_utterances) == 0 then
-            utterances_used = utterances_used + 1
-            current_utterance = utt
-        end
-        utterances_seen = utterances_seen + 1
-    end
-
-    -- Check if we should bail
-    if utterances_used > max_utterances then
-        break
-    end
-
-    if utt == current_utterance then
-        -- Find language label
-        local lang_i, lang_j = string.find(line, "[a-z]+ ", 5)
-        local lang = string.sub(line, lang_i, lang_j - 1)   -- Cut off trailing whitespace
-        local label = lang2label[lang]
-        label2uttcount[label] = label2uttcount[label] + 1
-        if label == 2 then
-            -- In-class; add to our count
-            in_set_frames = in_set_frames + 1
-        end
-
-        -- Read in features into a tensor
-        local feature_strs = string.sub(line, lang_j + 1)
-        local feature_tensor = torch.zeros(feature_dim)
-        if opt.gpu then
-            feature_tensor = feature_tensor:cuda()
-        end
-        local feature_idx = 1
-        for feature_str in string.gmatch(feature_strs, "[%-]?[0-9]*%.[0-9]*") do
-            feature_tensor[feature_idx] = tonumber(feature_str)
-            feature_idx = feature_idx + 1
-        end
-
-        -- Add this to the dataset
-        dataset_full[dataset_full_size + 1] = {feature_tensor, label}
-        dataset_full_size = dataset_full_size + 1
-    end
-end
-print("Finished loading dataset with " .. dataset_full_size .. " frames: " .. in_set_frames .. " in set, " .. (dataset_full_size - in_set_frames) .. " out of set")
-
--- Downsample OOS data to prevent unbalanced data
-local dataset = {}
-local dataset_size = 0
-local oos_frames = 0
-for i = 1,dataset_full_size do
-    local full_data = dataset_full[i]
-    local label = full_data[2]
-
-    if label == 1 then
-        -- OOS: add to count
-        oos_frames = oos_frames + 1
-
-        if oos_frames <= in_set_frames then
-            dataset_size = dataset_size + 1
-            dataset[dataset_size] = dataset_full[i]
-        end
-    else
-        -- In set: always add
-        dataset_size = dataset_size + 1
-        dataset[dataset_size] = dataset_full[i]
-    end
-end
-function dataset:size() return dataset_size end
-print("Done setting up balanced dataset with " .. dataset_size .. " datapoints")
-
 local context_frames = 10
+
 if opt.network == '' then
     print("Setting up neural network...")
     -- Use historical frames as context in input vector
@@ -166,7 +105,7 @@ print("Training neural network using minibatch size " .. opt.batchSize .. "...")
 -- Use class negative log likelihood (NLL) criterion and stochastic gradient descent to train network
 
 -- Weights data to account for class imbalance in NIST 2003 dataset
--- local weights = torch.cdiv(torch.ones(label2uttcount:size(1)), label2uttcount)
+-- local weights = torch.cdiv(torch.ones(label2framecount:size(1)), label2framecount)
 -- if opt.gpu then
 --     print("Convert weights to CUDA")
 --     weights = weights:cuda()
@@ -206,7 +145,7 @@ for epoch = 1,opt.epochs do
     local start_time = sys.clock()
 
     -- Shuffle our data so we don't get mono-language minibatches
-    local shuffle = torch.randperm(dataset:size())
+    -- local shuffle = torch.randperm(dataset:size())
 
     -- Run through each of our mini-batches
     for batch_start = 1,dataset:size(),opt.batchSize do
@@ -220,7 +159,8 @@ for epoch = 1,opt.epochs do
 
         local input_idx = 1
         for sample_idx = batch_start, math.min(batch_start + opt.batchSize - 1, dataset:size()) do
-            local data = dataset[shuffle[sample_idx]]
+            -- local data = dataset[shuffle[sample_idx]]
+            local data = dataset[sample_idx]
             local features_tensor = data[1]
             local label = data[2] 
 
@@ -229,7 +169,8 @@ for epoch = 1,opt.epochs do
 
             -- Load context features, if any
             for context = 1, math.min(context_frames, input_idx - 1) do
-                local context_data = dataset[shuffle[sample_idx - context]]
+                -- local context_data = dataset[shuffle[sample_idx - context]]
+                local context_data = dataset[sample_idx - context]
                 local context_features_tensor = context_data[1]
                 local context_label = context_data[2] 
                 local slice_begin = (context * feature_dim) + 1

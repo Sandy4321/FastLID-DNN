@@ -1,7 +1,8 @@
 require "torch"
 require "nn"
-require "cunn"
 require "optim"
+
+local lre03DatasetReader = require "lre03DatasetReader"
 
 -- Parse command-line options
 local opt = lapp[[
@@ -15,6 +16,10 @@ local opt = lapp[[
    -t,--threads       (default 4)           number of threads
 ]]
 
+if opt.gpu then
+    require "cunn"
+end
+
 -- Fix seed
 torch.manualSeed(1)
 
@@ -22,71 +27,35 @@ torch.manualSeed(1)
 torch.setnumthreads(opt.threads)
 print('Set nb of threads to ' .. torch.getnumthreads())
 
-print("Setting up training dataset...")
-local dataset={}
 local features_file="/pool001/atitus/FastLID-DNN/data_prep/feats/features_train_labeled"
-local dataset_size = 0
 local lang2label = {outofset = 1, english = 2, german = 3, mandarin = 4}
-local label2uttcount = torch.zeros(4)
-local total_utterances = 1503
 
 -- Only use full dataset if we say so
-local max_utterances = 100
+local max_frames = 100
+local total_frames = 469083 
+local label2maxframes = torch.zeros(4)
 if opt.full then
-    max_utterances = total_utterances
+    -- Force all data to be used
+    max_frames = 10 * total_frames
 end
-print("Using a total of " .. max_utterances .. " utterances out of " .. total_utterances)
+label2maxframes[lang2label["outofset"]] = max_frames / 4
+label2maxframes[lang2label["english"]] = max_frames / 4
+label2maxframes[lang2label["german"]] = max_frames / 4
+label2maxframes[lang2label["mandarin"]] = max_frames / 4
+label2maxframes:floor()
 
-local feature_dim = 39  -- 13 MFCCs, 13 delta MFCCS, 13 delta-delta MFCCs
-
-local current_utterance=""
-local utterances_used = 0
-local utterances_seen = 0
-for line in io.lines(features_file) do
-    -- Find utterance ID
-    local utt = string.sub(line, 1, 4)
-    if utt ~= current_utterance then
-        -- Check if we should use this utterance
-        if utterances_seen % (total_utterances / max_utterances) == 0 then
-            utterances_used = utterances_used + 1
-            current_utterance = utt
-        end
-        utterances_seen = utterances_seen + 1
-    end
-
-    -- Check if we should bail
-    if utterances_used > max_utterances then
-        break
-    end
-
-    if utt == current_utterance then
-        -- Find language label
-        local lang_i, lang_j = string.find(line, "[a-z]+ ", 5)
-        local lang = string.sub(line, lang_i, lang_j - 1)   -- Cut off trailing whitespace
-        local label = lang2label[lang]
-        label2uttcount[label] = label2uttcount[label] + 1
-
-        -- Read in features into a tensor
-        local feature_strs = string.sub(line, lang_j + 1)
-        local feature_tensor = torch.zeros(feature_dim)
-        if opt.gpu then
-            feature_tensor = feature_tensor:cuda()
-        end
-        local feature_idx = 1
-        for feature_str in string.gmatch(feature_strs, "[%-]?[0-9]*%.[0-9]*") do
-            feature_tensor[feature_idx] = tonumber(feature_str)
-            feature_idx = feature_idx + 1
-        end
-
-        -- Add this to the dataset
-        dataset[dataset_size + 1] = {feature_tensor, label}
-        dataset_size = dataset_size + 1
-    end
-end
-function dataset:size() return dataset_size end
-print("Done setting up dataset with " .. dataset_size .. " datapoints across " .. max_utterances .. " utterances.")
-
+-- Load the training dataset
+local feature_dim = 39
 local context_frames = 10
+local readCfg = {
+    features_file = features_file,
+    lang2label = lang2label,
+    label2maxframes = label2maxframes,
+    include_utts = false,
+    gpu = opt.gpu
+}
+local dataset, label2uttcount = lre03DatasetReader.read(readCfg)
+
 if opt.network == '' then
     print("Setting up neural network...")
     -- Use historical frames as context in input vector
@@ -173,7 +142,7 @@ for epoch = 1,opt.epochs do
     local start_time = sys.clock()
 
     -- Shuffle our data so we don't get mono-language minibatches
-    local shuffle = torch.randperm(dataset:size())
+    -- local shuffle = torch.randperm(dataset:size())
 
     -- Run through each of our mini-batches
     for batch_start = 1,dataset:size(),opt.batchSize do
@@ -187,7 +156,8 @@ for epoch = 1,opt.epochs do
 
         local input_idx = 1
         for sample_idx = batch_start, math.min(batch_start + opt.batchSize - 1, dataset:size()) do
-            local data = dataset[shuffle[sample_idx]]
+            -- local data = dataset[shuffle[sample_idx]]
+            local data = dataset[sample_idx]
             local features_tensor = data[1]
             local label = data[2] 
 
@@ -196,14 +166,14 @@ for epoch = 1,opt.epochs do
 
             -- Load context features, if any
             for context = 1, math.min(context_frames, input_idx - 1) do
-                local context_data = dataset[shuffle[sample_idx - context]]
+                -- local context_data = dataset[shuffle[sample_idx - context]]
+                local context_data = dataset[sample_idx - context]
                 local context_features_tensor = context_data[1]
                 local context_label = context_data[2] 
                 local slice_begin = (context * feature_dim) + 1
                 local slice_end = (context+1)*feature_dim
                 inputs[{ input_idx - context, {slice_begin, slice_end} }] = context_features_tensor
             end
-
             targets[input_idx] = label
 
             input_idx = input_idx + 1
