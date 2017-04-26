@@ -18,9 +18,9 @@ module load engaging/torch/20160128
 optim=Adam
 epochs=500
 language=mandarin
-batchsize=512
+batchsize=256
 echo "TRAINING DNN MODEL FOR LANGUAGE ${language}"
-filename=/pool001/atitus/FastLID-DNN/models/${language}_1k_1k_${optim}_e${epochs}_b${batchsize}
+filename=/pool001/atitus/FastLID-DNN/models/${language}_1k_1k_${optim}_e${epochs}_b${batchsize}_dropout
 threads=16
-th train_language.lua --netFilename="${filename}" --gpu --full -o $optim -e $epochs -t $threads -l $language -b $batchsize
+th train_language.lua --netFilename="${filename}" --gpu --full -o $optim -e $epochs -t $threads -l $language -b $batchsize --dropout
 echo "COMPLETED TRAINING"

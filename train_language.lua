@@ -8,6 +8,7 @@ local lre03DatasetReader = require "lre03DatasetReader"
 local opt = lapp[[
    -n,--network       (default "")          reload pretrained network
    -f,--full                                use the full training dataset
+   -d,--dropout                             use dropout (50%) in training
    -o,--optimization  (default "")          optimization: Adam | NAG 
    -b,--batchSize     (default 128)         batch size
    -e,--epochs        (default 100)         number of epochs in training
@@ -37,7 +38,8 @@ local max_frames = 100
 local label2maxframes = torch.zeros(4)
 if opt.full then
     -- Force all data to be used
-    local frames_per_language = {english = 150744, german = 24841, mandarin = 48081}
+    -- local frames_per_language = {english = 150744, german = 24841, mandarin = 48081}
+    local frames_per_language = {english = 660134, german = 111277, mandarin = 215407}
     max_frames = frames_per_language[opt.language]
 end
 label2maxframes[lang2label["outofset"]] = max_frames
@@ -49,7 +51,7 @@ local readCfg = {
     features_file = features_file,
     lang2label = lang2label,
     label2maxframes = label2maxframes,
-    include_utts = false,
+    include_utts = true,
     gpu = opt.gpu
 }
 local dataset, label2framecount = lre03DatasetReader.read(readCfg)
@@ -72,13 +74,17 @@ if opt.network == '' then
     model:add(nn.Linear(inputs, hidden_units_1))
     model:add(nn.Add(hidden_units_1, true))
     model:add(nn.ReLU())
-    model:add(nn.Dropout(dropout_prob))
+    if opt.dropout then
+        model:add(nn.Dropout(dropout_prob))
+    end
 
     -- Second hidden layer with constant bias term and ReLU activation as well
     model:add(nn.Linear(hidden_units_1, hidden_units_2))
     model:add(nn.Add(hidden_units_2, true))
     model:add(nn.ReLU())
-    model:add(nn.Dropout(dropout_prob))
+    if opt.dropout then
+        model:add(nn.Dropout(dropout_prob))
+    end
 
     -- Output layer with softmax layer
     model:add(nn.Linear(hidden_units_2, outputs))
@@ -144,8 +150,8 @@ parameters, gradParameters = model:getParameters()
 for epoch = 1,opt.epochs do
     local start_time = sys.clock()
 
-    -- Shuffle our data so we don't get mono-language minibatches
-    -- local shuffle = torch.randperm(dataset:size())
+    -- Shuffle our data indices so we don't get mono-language minibatches
+    local shuffle = torch.randperm(dataset:size())
 
     -- Run through each of our mini-batches
     for batch_start = 1,dataset:size(),opt.batchSize do
@@ -159,38 +165,42 @@ for epoch = 1,opt.epochs do
 
         local input_idx = 1
         for sample_idx = batch_start, math.min(batch_start + opt.batchSize - 1, dataset:size()) do
-            -- local data = dataset[shuffle[sample_idx]]
-            local data = dataset[sample_idx]
+            local shuffled_idx = shuffle[sample_idx]
+            local data = dataset[shuffled_idx]
             local features_tensor = data[1]
             local label = data[2] 
+            local utt = data[3] 
 
             -- Load current features
             inputs[{ input_idx, {1, feature_dim} }] = features_tensor
 
-            -- Load context features, if any
-            for context = 1, math.min(context_frames, input_idx - 1) do
-                -- local context_data = dataset[shuffle[sample_idx - context]]
-                local context_data = dataset[sample_idx - context]
+            -- Load context features from SAME utterance, if any
+            for context = 1, math.min(context_frames, shuffled_idx - 1) do
+                local context_data = dataset[shuffled_idx - context]
                 local context_features_tensor = context_data[1]
-                local context_label = context_data[2] 
-                local slice_begin = (context * feature_dim) + 1
-                local slice_end = (context+1)*feature_dim
-                inputs[{ input_idx - context, {slice_begin, slice_end} }] = context_features_tensor
+                local context_utt = context_data[3] 
+
+                -- Don't let an utterance in another language spill over into this one!
+                if context_utt == utt then
+                    local slice_begin = (context * feature_dim) + 1
+                    local slice_end = (context+1)*feature_dim
+                    inputs[{ input_idx, {slice_begin, slice_end} }] = context_features_tensor
+                end
             end
 
+            -- Add target label
             targets[input_idx] = label
-
             input_idx = input_idx + 1
         end
 
         -- Local function evaluation for gradient descent
         local eval_func = function(x)
-            -- Reset gradient
-            gradParameters:zero()
-
             -- Evaluate function for our whole mini-batch
             local output_probs = model:forward(inputs)
             local f = criterion:forward(output_probs, targets)
+
+            -- Reset gradient
+            model:zeroGradParameters()
 
             -- Estimate df/dW
             local df_do = criterion:backward(output_probs, targets)
