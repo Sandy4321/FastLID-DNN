@@ -11,7 +11,7 @@ if len(sys.argv) != 2:
 log_filename = sys.argv[1]
 
 # Read in last confusion matrix and plot it
-labels = ["oos", "german"]
+labels = ["oos", "english"]
 num_classes = len(labels)
 conf_mat = np.zeros((num_classes, num_classes), np.float64)
 current_row = -1    # Indicates that we are not currently reading
@@ -27,7 +27,7 @@ with open(log_filename, 'r') as log:
             if key_phrase not in log_line:
                 current_row = -1
             else:
-                stripped_line = log_line.split("[   ")[1].split("]")[0]
+                stripped_line = log_line.split("[  ")[1].split("]")[0]
                 data = map(float, filter(lambda x: len(x) > 0, stripped_line.split(" ")))
                 assert(len(data) == num_classes)
                 conf_mat[current_row] = data
@@ -42,5 +42,5 @@ for i in xrange(num_classes):
 # http://stackoverflow.com/questions/35572000/how-can-i-plot-a-confusion-matrix
 df_cm = pd.DataFrame(conf_mat, index = labels, columns = labels)
 plt.figure(figsize = (10,7))
-sn.heatmap(df_cm, annot=True)
+sn.heatmap(df_cm, annot=True, vmin=0.0, vmax=1.0)
 plt.show()
