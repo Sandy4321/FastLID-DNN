@@ -19,8 +19,10 @@ echo "TRAINING DNN MODEL"
 optim=Adam
 epochs=500
 batchsize=32
-network=/pool001/atitus/FastLID-DNN/models/1k_1k_256_${optim}_e${epochs}_b${batchsize}
-filename=/pool001/atitus/FastLID-DNN/models/full_1k_1k_256_${optim}_e${epochs}_b${batchsize}
+#network=/pool001/atitus/FastLID-DNN/models/1k_1k_256_${optim}_e${epochs}_b${batchsize}
+#filename=/pool001/atitus/FastLID-DNN/models/full_1k_1k_256_${optim}_e${epochs}_b${batchsize}
+filename=/pool001/atitus/FastLID-DNN/models/full_fresh_1k_1k_256_${optim}_e${epochs}_b${batchsize}_dropout
 threads=16
-th train.lua -n $network --netFilename="${filename}" --gpu -o $optim -e $epochs -t $threads -b $batchsize
+#th train.lua -n $network --netFilename="${filename}" --gpu -o $optim -e $epochs -t $threads -b $batchsize
+th train.lua --netFilename="${filename}" --gpu -o $optim -e $epochs -t $threads -b $batchsize --dropout
 echo "COMPLETED TRAINING"

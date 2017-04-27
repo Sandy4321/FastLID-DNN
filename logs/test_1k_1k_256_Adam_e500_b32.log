@@ -1,0 +1,56 @@
+TESTING DNN MODEL
+TESTING NETWORK WITH FILENAME /pool001/atitus/FastLID-DNN/models/1k_1k_256_Adam_e500_b32
+[?1034hSet nb of threads to 16	
+Setting up testing dataset...	
+Reading dataset...	
+Done setting up dataset with 335583 datapoints across 1174 utterances.	
+Loading neural network /pool001/atitus/FastLID-DNN/models/1k_1k_256_Adam_e500_b32...	
+Loaded neural network /pool001/atitus/FastLID-DNN/models/1k_1k_256_Adam_e500_b32	
+Using model:	
+nn.Sequential {
+  [input -> (1) -> (2) -> (3) -> (4) -> (5) -> (6) -> (7) -> (8) -> (9) -> (10) -> (11) -> output]
+  (1): nn.Linear(429 -> 1024)
+  (2): nn.Add
+  (3): nn.ReLU
+  (4): nn.Linear(1024 -> 1024)
+  (5): nn.Add
+  (6): nn.ReLU
+  (7): nn.Linear(1024 -> 256)
+  (8): nn.Add
+  (9): nn.ReLU
+  (10): nn.Linear(256 -> 4)
+  (11): nn.LogSoftMax
+}
+Convert network to CUDA	
+Testing neural network...	
+Convert input tensor to CUDA	
+================================	
+Frame-Level Testing:	
+  time to test 1 sample = 0.9269929106466ms	
+  time to test all 335583 samples = 311083.06193352ms	
+  FER: 0.43154748601687	
+================================	
+ConfusionMatrix:
+[[  128160   28428   25368   39801]   57.793% 	[class: 1]
+ [   25800    6340    4931    7932]   14.088% 	[class: 2]
+ [   13625    3042    2455    4385]   10.444% 	[class: 3]
+ [   25363    6393    5695    7865]]  17.356% 	[class: 4]
+ + average row correct: 24.920134991407% 
+ + average rowUcol correct (VOC measure): 16.143744811416% 
+ + global correct: 43.154748601687%
+================================	
+Utterance-Level Testing:	
+  time to test 1 utterance = 0.46137305297072ms	
+  time to test all 1174 utterances = 541.65196418762ms	
+  UER: 0.28449744463373	
+================================	
+ConfusionMatrix:
+[[     250     127     164     237]   32.134% 	[class: 1]
+ [      49      34      30      45]   21.519% 	[class: 2]
+ [      30      11      10      29]   12.500% 	[class: 3]
+ [      45      35      38      40]]  25.316% 	[class: 4]
+ + average row correct: 22.867279499769% 
+ + average rowUcol correct (VOC measure): 12.430500704795% 
+ + global correct: 28.449744463373%
+Done testing neural network.	
+COMPLETED TESTING

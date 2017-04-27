@@ -117,8 +117,9 @@ for i=1,dataset:size() do
         end
     end
 
-    -- Evaluate this frame
-    local output_probs = model:forward(input)
+    -- Evaluate this frame and convert negative log likelihoods to probabilities
+    local output_nlls = model:forward(input)
+    local output_probs = torch.exp(output_nlls)
     local confidence, classification_tensor = torch.max(output_probs, 1)
     local classification = classification_tensor[1]
     if classification == label then
@@ -154,6 +155,7 @@ print("================================")
 print("Frame-Level Testing:")
 print("  time to test 1 sample = " .. (time_per_sample * 1000) .. "ms")
 print("  time to test all " .. dataset:size() .. " samples = " .. (elapsed_time * 1000) .. "ms")
+print("  FER: " .. (correct_frames / dataset:size()))
 print("================================")
 
 -- Print confusion matrix and reset
@@ -166,6 +168,7 @@ local correct_utterances = 0
 for i=1,max_utterances do
     -- Test whole utterance
     local label = utterance_labels[i]
+    print("Label is " .. label .. ", probs are:")
     print(utterance_output_avgs[i])
     local confidence, classification_tensor = torch.max(utterance_output_avgs[i], 1)
     local classification = classification_tensor[1]
@@ -185,6 +188,7 @@ print("================================")
 print("Utterance-Level Testing:")
 print("  time to test 1 utterance = " .. (time_per_utterance * 1000) .. "ms")
 print("  time to test all " .. max_utterances .. " utterances = " .. (elapsed_time * 1000) .. "ms")
+print("  UER: " .. (correct_utterances / max_utterances))
 print("================================")
 
 -- Print confusion matrix and reset
