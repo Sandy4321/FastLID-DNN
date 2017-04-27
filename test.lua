@@ -8,6 +8,7 @@ local lre03DatasetReader = require "lre03DatasetReader"
 local opt = lapp[[
    -n,--network       (string)              reload pretrained network
    -g,--gpu                                 test on GPU
+   --noOOS                                  do not train for Out-of-Set utterances
    -t,--threads       (default 4)           number of threads
 ]]
 
@@ -29,8 +30,11 @@ local lang2label = {outofset = 1, english = 2, german = 3, mandarin = 4}
 -- Force all data to be used
 local total_frames = 335583
 local label2maxframes = torch.zeros(4)
---label2maxframes[lang2label["outofset"]] = total_frames
-label2maxframes[lang2label["outofset"]] = 0
+label2maxframes[lang2label["outofset"]] = total_frames
+if opt.noOOS then
+    print("No out-of-set languages being used")
+    label2maxframes[lang2label["outofset"]] = 0
+end
 label2maxframes[lang2label["english"]] = total_frames
 label2maxframes[lang2label["german"]] = total_frames
 label2maxframes[lang2label["mandarin"]] = total_frames
@@ -64,8 +68,11 @@ if opt.gpu then
 end
 
 -- Set up confusion matrix
---local labels = {1, 2, 3, 4}
-local labels = {2, 3, 4}
+if opt.noOOS then
+    labels = {2, 3, 4}
+else
+    labels = {1, 2, 3, 4}
+end
 local confusion = optim.ConfusionMatrix(labels)
 
 print("Testing neural network...")
@@ -86,8 +93,10 @@ end
 for i=1,dataset:size() do
     local data = dataset[i]
     local features_tensor = data[1]
-    --local label = data[2]
-    local label = data[2] - 1   -- No OOS - need to shift
+    local label = data[2]
+    if opt.noOOS then
+        label = label - 1   -- No OOS - shift over labels
+    end
     local utt = data[3]
 
     -- Load current features

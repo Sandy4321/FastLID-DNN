@@ -6,21 +6,20 @@
 #SBATCH -c 4
 #SBATCH --reservation=jimglass_class_testing
 #SBATCH -p sched_engaging_default
-#SBATCH --time=01:00:00  
+#SBATCH --time=12:00:00  
 #SBATCH --exclusive  
-#SBATCH -J test
+#SBATCH -J train_detector
 . /etc/profile.d/modules.sh  
 module load cuda/8.0
 module load engaging/OpenBLAS/0.2.14
 module load engaging/lua/5.3.2
 module load engaging/torch/20160128
 
-echo "TESTING DNN MODEL"
+echo "TRAINING DNN MODEL FOR IN/OUT OF SET DETECTION"
 optim=Adam
 epochs=500
 batchsize=32
-network=/pool001/atitus/FastLID-DNN/models/no_oos_1k_512_256_${optim}_e${epochs}_b${batchsize}
+filename=/pool001/atitus/FastLID-DNN/models/detector_1k_512_128_${optim}_e${epochs}_b${batchsize}
 threads=16
-echo "TESTING NETWORK WITH FILENAME ${network}"
-th test.lua --network="${network}" --gpu -t $threads
-echo "COMPLETED TESTING"
+th train_detector.lua --netFilename="${filename}" --gpu -o $optim -e $epochs -t $threads -b $batchsize
+echo "COMPLETED TRAINING"

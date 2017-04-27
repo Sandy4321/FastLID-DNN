@@ -4,17 +4,17 @@ require "optim"
 
 local lre03DatasetReader = require "lre03DatasetReader"
 
+-- Detect whether language spoken is in or out of set
+
 -- Parse command-line options
 local opt = lapp[[
    -n,--network       (default "")          reload pretrained network
-   -f,--full                                use the full training dataset
    -d,--dropout                             use dropout (50%) while training
    -o,--optimization  (default "")          optimization: Adam | NAG 
    -b,--batchSize     (default 128)         batch size
    -e,--epochs        (default 100)         number of epochs in training
    -g,--gpu                                 train on GPU
    --netFilename      (string)              name of file to save network to
-   --noOOS                                  do not train for Out-of-Set utterances
    -t,--threads       (default 4)           number of threads
 ]]
 
@@ -35,24 +35,13 @@ local lang2label = {outofset = 1, english = 2, german = 3, mandarin = 4}
 -- Only use full dataset if we say so
 local total_frames = 469083 
 local label2maxframes = torch.zeros(4)
-if opt.full then
-    -- Force all data to be used
-    label2maxframes[lang2label["outofset"]] = total_frames
-    label2maxframes[lang2label["english"]] = total_frames
-    label2maxframes[lang2label["german"]] = total_frames
-    label2maxframes[lang2label["mandarin"]] = total_frames
-else
-    -- Balance the data
-    local min_frames = 111277   -- Count for German, the minimum in this label set
-    label2maxframes[lang2label["outofset"]] = min_frames
-    label2maxframes[lang2label["english"]] = min_frames
-    label2maxframes[lang2label["german"]] = min_frames
-    label2maxframes[lang2label["mandarin"]] = min_frames
-end
-if opt.noOOS then
-    print("No out-of-set languages being used")
-    label2maxframes[lang2label["outofset"]] = 0
-end
+    
+-- Balance the data
+local min_frames = 111277   -- Count for German, the minimum in this label set
+label2maxframes[lang2label["outofset"]] = min_frames
+label2maxframes[lang2label["english"]] = min_frames
+label2maxframes[lang2label["german"]] = min_frames
+label2maxframes[lang2label["mandarin"]] = min_frames
 label2maxframes:floor()
 
 -- Load the training dataset
@@ -71,11 +60,7 @@ if opt.network == '' then
     print("Setting up neural network...")
     -- Use historical frames as context in input vector
     local inputs = feature_dim * (context_frames + 1)
-    if opt.noOOS then
-        outputs = 3       -- number of classes (three languages)
-    else
-        outputs = 4       -- number of classes (three languages + OOS)
-    end
+    outputs = 2         -- in-set vs. out-of-set
     local hidden_units_1 = 1024
     local hidden_units_2 = 512
     local hidden_units_3 = 128
@@ -137,7 +122,8 @@ print("Training neural network using minibatch size " .. opt.batchSize .. "...")
 --     print("Convert weights to CUDA")
 --     weights = weights:cuda()
 -- end
-local criterion = nn.ClassNLLCriterion(weights) 
+-- local criterion = nn.ClassNLLCriterion(weights) 
+local criterion = nn.ClassNLLCriterion() 
 if opt.gpu then
     print("Convert criterion to CUDA")
     criterion = criterion:cuda()
@@ -146,11 +132,7 @@ end
 -- print(weights)
 
 -- Set up confusion matrix
-if opt.noOOS then
-    labels = {2, 3, 4}
-else
-    labels = {1, 2, 3, 4}
-end
+labels = {1, 2}
 local confusion = optim.ConfusionMatrix(labels)
 
 -- Values suggested by paper
@@ -193,8 +175,8 @@ for epoch = 1,opt.epochs do
             local data = dataset[shuffle_idx]
             local features_tensor = data[1]
             local label = data[2]
-            if opt.noOOS then
-                label = label - 1   -- No OOS - shift over labels
+            if label >= 2 then
+                label = 2       -- All languages in-set marked as such
             end
             local utt = data[3]
 
