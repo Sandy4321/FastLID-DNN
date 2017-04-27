@@ -33,7 +33,7 @@ local features_file="/pool001/atitus/FastLID-DNN/data_prep/feats/features_train_
 local lang2label = {outofset = 1, english = 2, german = 3, mandarin = 4}
 
 -- Only use full dataset if we say so
-local total_frames = 469083 
+local total_frames = 6850633
 local label2maxframes = torch.zeros(4)
 if opt.full then
     -- Force all data to be used
@@ -43,7 +43,7 @@ if opt.full then
     label2maxframes[lang2label["mandarin"]] = total_frames
 else
     -- Balance the data
-    local min_frames = 111277   -- Count for German, the minimum in this label set
+    local min_frames = 367484   -- Count for German, the minimum in this label set
     label2maxframes[lang2label["outofset"]] = min_frames
     label2maxframes[lang2label["english"]] = min_frames
     label2maxframes[lang2label["german"]] = min_frames

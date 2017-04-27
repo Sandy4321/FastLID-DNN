@@ -24,7 +24,7 @@ torch.setnumthreads(opt.threads)
 print('Set nb of threads to ' .. torch.getnumthreads())
 
 print("Setting up testing dataset...")
-local features_file="/pool001/atitus/FastLID-DNN/data_prep/feats_3_old/features_test_labeled"
+local features_file="/pool001/atitus/FastLID-DNN/data_prep/feats_3/features_test_labeled"
 local lang2label = {outofset = 1, english = 2, german = 3, mandarin = 4}
 
 -- Force all data to be used
@@ -166,6 +166,7 @@ local correct_utterances = 0
 for i=1,max_utterances do
     -- Test whole utterance
     local label = utterance_labels[i]
+    print(utterance_output_avgs[i])
     local confidence, classification_tensor = torch.max(utterance_output_avgs[i], 1)
     local classification = classification_tensor[1]
     if classification == label then
