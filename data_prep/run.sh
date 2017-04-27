@@ -23,15 +23,29 @@ else
     exit 1
 fi
 
+if [ $2 == "3" ]; then
+    echo "3-second utterances"
+    utt_duration=3
+elif [ $2 == "10" ]; then
+    echo "10-second utterances"
+    utt_duration=10
+elif [ $2 == "30" ]; then
+    echo "30-second utterances"
+    utt_duration=30
+else
+    echo "Must specify an utterance duration: must be one of 3, 10 or 30"
+    exit 1
+fi
+
 data=`pwd`/data
-data_train=$data/train
-#data_test=$data/test
-featdir=`pwd`/feats
+data_train=$data/train_${utt_duration}
+#data_test=$data/test_${utt_duration}
+featdir=`pwd`/feats_${utt_duration}
 
 if [ $stage -le 1 ]; then
     echo "Preparing data..."
     # convert sphere data to wav files, along with proper scp and ark files
-    local/lre03_data_prep.sh || exit 1;
+    local/lre03_data_prep.sh $utt_duration || exit 1;
     echo "Data prepared!"
 fi
 
@@ -40,12 +54,12 @@ if [ $stage -le 2 ]; then
     # Now make MFCC features.
     #for x in test train; do
     #    steps/make_mfcc.sh --cmd "$train_cmd" --nj $NUM_JOBS --mfcc-config conf/mfcc.conf \
-    #        data/$x exp/make_feats/$x $featdir || exit 1;
-    #    steps/compute_cmvn_stats.sh data/$x exp/make_feats/$x $featdir || exit 1;
+    #        $data_${x} exp/make_feats/$x $featdir || exit 1;
+    #    steps/compute_cmvn_stats.sh $data_${x} exp/make_feats/$x $featdir || exit 1;
     #done
     steps/make_mfcc.sh --cmd "$train_cmd" --nj $NUM_JOBS --mfcc-config conf/mfcc.conf \
-        data/train exp/make_feats/train $featdir || exit 1;
-    steps/compute_cmvn_stats.sh data/train exp/make_feats/train $featdir || exit 1;
+        $data_train exp/make_feats/train $featdir || exit 1;
+    steps/compute_cmvn_stats.sh $data_train exp/make_feats/train $featdir || exit 1;
     echo "MFCCs complete!"
 fi
 

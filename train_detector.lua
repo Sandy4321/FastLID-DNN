@@ -62,8 +62,8 @@ if opt.network == '' then
     local inputs = feature_dim * (context_frames + 1)
     outputs = 2         -- in-set vs. out-of-set
     local hidden_units_1 = 1024
-    local hidden_units_2 = 512
-    local hidden_units_3 = 128
+    local hidden_units_2 = 1024
+    local hidden_units_3 = 256
     local dropout_prob = 0.5
 
     model = nn.Sequential();  -- make a multi-layer perceptron
