@@ -12,6 +12,7 @@ log_filename = sys.argv[1]
 
 # Read in last confusion matrix and plot it
 labels = ["oos", "english", "german", "mandarin"]
+#labels = ["english", "german", "mandarin"]
 num_classes = len(labels)
 conf_mat = np.zeros((num_classes, num_classes), np.float64)
 current_row = -1    # Indicates that we are not currently reading
@@ -33,14 +34,14 @@ with open(log_filename, 'r') as log:
                 conf_mat[current_row] = data
                 current_row += 1
 
-# Normalize confusion matrix
+# Normalize confusion matrix and convert to percentages
 for i in xrange(num_classes):
     row_sum = sum(conf_mat[i])
-    conf_mat[i] = np.divide(conf_mat[i], row_sum)
+    conf_mat[i] = np.multiply(conf_mat[i], 100.0 / row_sum)
 
 # Confusion matrix plotting with help of
 # http://stackoverflow.com/questions/35572000/how-can-i-plot-a-confusion-matrix
 df_cm = pd.DataFrame(conf_mat, index = labels, columns = labels)
 plt.figure(figsize = (10,7))
-sn.heatmap(df_cm, annot=True, vmin=0.0, vmax=1.0)
+sn.heatmap(df_cm, annot=True, vmin=0.0, vmax=100.0)
 plt.show()
