@@ -43,8 +43,8 @@ if opt.full then
 else
     -- Balance the data
     local min_frames = 111277   -- Count for German, the minimum in this label set
-    --label2maxframes[lang2label["outofset"]] = min_frames
-    label2maxframes[lang2label["outofset"]] = 0
+    label2maxframes[lang2label["outofset"]] = min_frames
+    --label2maxframes[lang2label["outofset"]] = 0
     label2maxframes[lang2label["english"]] = min_frames
     label2maxframes[lang2label["german"]] = min_frames
     label2maxframes[lang2label["mandarin"]] = min_frames
@@ -67,11 +67,11 @@ if opt.network == '' then
     print("Setting up neural network...")
     -- Use historical frames as context in input vector
     local inputs = feature_dim * (context_frames + 1)
-    --local outputs = 4       -- number of classes (three languages + OOS)
-    local outputs = 3       -- number of classes (three languages)
+    local outputs = 4       -- number of classes (three languages + OOS)
+    --local outputs = 3       -- number of classes (three languages)
     local hidden_units_1 = 1024
-    local hidden_units_2 = 1024
-    local hidden_units_3 = 1024
+    local hidden_units_2 = 512
+    local hidden_units_3 = 256
     local dropout_prob = 0.5
 
     model = nn.Sequential();  -- make a multi-layer perceptron
@@ -93,7 +93,9 @@ if opt.network == '' then
     end
     
     -- Third hidden layer with constant bias term and ReLU activation as well
-    model:add(nn.Linear(hidden_units_2, hidden_units_3)) model:add(nn.Add(hidden_units_3, true)) model:add(nn.ReLU())
+    model:add(nn.Linear(hidden_units_2, hidden_units_3))
+    model:add(nn.Add(hidden_units_3, true))
+    model:add(nn.ReLU())
     if opt.dropout then
         model:add(nn.Dropout(dropout_prob))
     end
@@ -137,8 +139,8 @@ end
 -- print(weights)
 
 -- Set up confusion matrix
---local labels = {1, 2, 3, 4}
-local labels = {2, 3, 4}
+local labels = {1, 2, 3, 4}
+--local labels = {2, 3, 4}
 local confusion = optim.ConfusionMatrix(labels)
 
 -- Values suggested by paper
@@ -180,8 +182,8 @@ for epoch = 1,opt.epochs do
             local shuffle_idx = shuffle[sample_idx]
             local data = dataset[shuffle_idx]
             local features_tensor = data[1]
-            --local label = data[2]
-            local label = data[2] - 1   -- No OOS - shift over labels
+            local label = data[2]
+            --local label = data[2] - 1   -- No OOS - shift over labels
             local utt = data[3]
 
             -- Load current features

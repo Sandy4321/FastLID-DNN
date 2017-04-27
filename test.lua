@@ -2,10 +2,11 @@ require "torch"
 require "nn"
 require "optim"
 
+local lre03DatasetReader = require "lre03DatasetReader"
+
 -- Parse command-line options
 local opt = lapp[[
    -n,--network       (string)              reload pretrained network
-   -f,--full                                use the full test dataset
    -g,--gpu                                 test on GPU
    -t,--threads       (default 4)           number of threads
 ]]
@@ -22,68 +23,30 @@ torch.setnumthreads(opt.threads)
 print('Set nb of threads to ' .. torch.getnumthreads())
 
 print("Setting up testing dataset...")
+local features_file="/pool001/atitus/FastLID-DNN/data_prep/feats_3/features_test_labeled"
+local lang2label = {outofset = 1, english = 2, german = 3, mandarin = 4}
+
+-- Force all data to be used
+local total_frames = 335583
+local label2maxframes = torch.zeros(4)
+--label2maxframes[lang2label["outofset"]] = total_frames
+label2maxframes[lang2label["outofset"]] = 0
+label2maxframes[lang2label["english"]] = total_frames
+label2maxframes[lang2label["german"]] = total_frames
+label2maxframes[lang2label["mandarin"]] = total_frames
+
+-- Load the testing dataset
 local feature_dim = 39  -- 13 MFCCs, 13 delta MFCCS, 13 delta-delta MFCCs
 local context_frames = 10
-local dataset={}
-local features_file="/pool001/atitus/FastLID-DNN/data_prep/feats/features_test_labeled"
-local dataset_size = 0
-local lang2label = {outofset = 1, english = 2, german = 3, mandarin = 4}
-local label2uttcount = torch.zeros(4)
-local total_utterances = 1174
-
--- Only use full dataset if we say so
-local max_utterances = 100
-if opt.full then
-    max_utterances = total_utterances
-end
-print("Using a total of " .. max_utterances .. " utterances out of " .. total_utterances)
-
-local current_utterance=""
-local utterances_used = 0
-local utterances_seen = 0
-for line in io.lines(features_file) do
-    -- Find utterance ID
-    local utt = string.sub(line, 1, 4)
-    if utt ~= current_utterance then
-        -- Check if we should use this utterance
-        if utterances_seen % (total_utterances / max_utterances) == 0 then
-            utterances_used = utterances_used + 1
-            current_utterance = utt
-        end
-        utterances_seen = utterances_seen + 1
-    end
-
-    -- Check if we should bail
-    if utterances_used > max_utterances then
-        break
-    end
-
-    if utt == current_utterance then
-        -- Find language label
-        local lang_i, lang_j = string.find(line, "[a-z]+ ", 5)
-        local lang = string.sub(line, lang_i, lang_j - 1)   -- Cut off trailing whitespace
-        local label = lang2label[lang]
-        label2uttcount[label] = label2uttcount[label] + 1
-
-        -- Read in features into a tensor
-        local feature_strs = string.sub(line, lang_j + 1)
-        local feature_tensor = torch.Tensor(feature_dim)
-        if opt.gpu then
-            feature_tensor = feature_tensor:cuda()
-        end
-        local feature_idx = 1
-        for feature_str in string.gmatch(feature_strs, "[%-]?[0-9]*%.[0-9]*") do
-            feature_tensor[feature_idx] = tonumber(feature_str)
-            feature_idx = feature_idx + 1
-        end
-
-        -- Add this to the dataset
-        dataset[dataset_size + 1] = {feature_tensor, label, current_utterance}
-        dataset_size = dataset_size + 1
-    end
-end
-function dataset:size() return dataset_size end
-print("Done setting up dataset with " .. dataset_size .. " datapoints across " .. max_utterances .. " utterances.")
+local max_utterances = 1174
+local readCfg = {
+    features_file = features_file,
+    lang2label = lang2label,
+    label2maxframes = label2maxframes,
+    include_utts = true,
+    gpu = opt.gpu
+}
+local dataset, label2uttcount = lre03DatasetReader.read(readCfg)
 
 print("Loading neural network " .. opt.network .. "...")
 model = torch.load(opt.network)
@@ -101,7 +64,8 @@ if opt.gpu then
 end
 
 -- Set up confusion matrix
-local labels = {1, 2, 3, 4}
+--local labels = {1, 2, 3, 4}
+local labels = {2, 3, 4}
 local confusion = optim.ConfusionMatrix(labels)
 
 print("Testing neural network...")
@@ -109,7 +73,6 @@ local correct_frames = 0
 local utterance_output_avgs = {}        -- averaged output probabilities
 local utterance_frame_counts = {}       -- current count of probabilities (used for averaging)
 local utterance_labels = {}             -- correct utterance-level label
-local current_utterance = ""
 local utterance_count = 0
 
 local start_time = sys.clock()
@@ -122,22 +85,27 @@ if opt.gpu then
 end
 for i=1,dataset:size() do
     local data = dataset[i]
-    local feature_tensor = data[1]
-    local label = data[2]
+    local features_tensor = data[1]
+    --local label = data[2]
+    local label = data[2] - 1   -- No OOS - need to shift
     local utt = data[3]
 
     -- Load current features
     input:zero()
-    input[{1, feature_dim}] = features_tensor
+    input[{ {1, feature_dim} }] = features_tensor
 
     -- Load context features, if any
     for context = 1, math.min(context_frames, i - 1) do
         local context_data = dataset[i - context]
         local context_features_tensor = context_data[1]
-        local context_label = context_data[2] 
-        local slice_begin = (context * feature_dim) + 1
-        local slice_end = (context + 1) * feature_dim
-        input[{slice_begin, slice_end}] = context_features_tensor
+        local context_utt = context_data[3]
+
+        -- Don't let another utterance spill over into this one!
+        if context_utt == utt then
+            local slice_begin = (context * feature_dim) + 1
+            local slice_end = (context+1)*feature_dim
+            input[{ {slice_begin, slice_end} }] = context_features_tensor
+        end
     end
 
     -- Evaluate this frame

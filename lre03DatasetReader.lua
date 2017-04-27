@@ -12,7 +12,7 @@ local lre03DatasetReader = {}
 --      gpu: boolean indicating whether data will be used on GPU
 --   Returns dataset, as well as table mapping labels to utterance counts
 function lre03DatasetReader.read(cfg)
-    print("Setting up training dataset...")
+    print("Reading dataset...")
     local dataset={}
     local dataset_size = 0
 
