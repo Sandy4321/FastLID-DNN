@@ -38,7 +38,7 @@ local label2maxframes = torch.zeros(4)
     
 -- Balance the data
 local min_frames = 111277   -- Count for German, the minimum in this label set
-label2maxframes[lang2label["outofset"]] = min_frames
+label2maxframes[lang2label["outofset"]] = min_frames * 3 
 label2maxframes[lang2label["english"]] = min_frames
 label2maxframes[lang2label["german"]] = min_frames
 label2maxframes[lang2label["mandarin"]] = min_frames
