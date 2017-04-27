@@ -21,5 +21,5 @@ epochs=500
 batchsize=32
 filename=/pool001/atitus/FastLID-DNN/models/no_oos_1k_512_256_${optim}_e${epochs}_b${batchsize}
 threads=16
-th train.lua --netFilename="${filename}" --gpu -o $optim -e $epochs -t $threads -b $batchsize
+th train.lua --netFilename="${filename}" --gpu -o $optim -e $epochs -t $threads -b $batchsize --noOOS
 echo "COMPLETED TRAINING"
