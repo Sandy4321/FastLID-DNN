@@ -14,6 +14,7 @@ local opt = lapp[[
    -e,--epochs        (default 100)         number of epochs in training
    -g,--gpu                                 train on GPU
    --netFilename      (string)              name of file to save network to
+   --noOOS                                  do not train for Out-of-Set utterances
    -t,--threads       (default 4)           number of threads
 ]]
 
@@ -44,10 +45,13 @@ else
     -- Balance the data
     local min_frames = 111277   -- Count for German, the minimum in this label set
     label2maxframes[lang2label["outofset"]] = min_frames
-    --label2maxframes[lang2label["outofset"]] = 0
     label2maxframes[lang2label["english"]] = min_frames
     label2maxframes[lang2label["german"]] = min_frames
     label2maxframes[lang2label["mandarin"]] = min_frames
+end
+if opt.noOOS then
+    print("No out-of-set languages being used")
+    label2maxframes[lang2label["outofset"]] = 0
 end
 label2maxframes:floor()
 
@@ -67,8 +71,11 @@ if opt.network == '' then
     print("Setting up neural network...")
     -- Use historical frames as context in input vector
     local inputs = feature_dim * (context_frames + 1)
-    local outputs = 4       -- number of classes (three languages + OOS)
-    --local outputs = 3       -- number of classes (three languages)
+    if opt.noOOS then
+        outputs = 3       -- number of classes (three languages)
+    else
+        outputs = 4       -- number of classes (three languages + OOS)
+    end
     local hidden_units_1 = 1024
     local hidden_units_2 = 512
     local hidden_units_3 = 256
@@ -139,8 +146,11 @@ end
 -- print(weights)
 
 -- Set up confusion matrix
-local labels = {1, 2, 3, 4}
---local labels = {2, 3, 4}
+if opt.noOOS then
+    labels = {2, 3, 4}
+else
+    labels = {1, 2, 3, 4}
+end
 local confusion = optim.ConfusionMatrix(labels)
 
 -- Values suggested by paper
@@ -183,7 +193,9 @@ for epoch = 1,opt.epochs do
             local data = dataset[shuffle_idx]
             local features_tensor = data[1]
             local label = data[2]
-            --local label = data[2] - 1   -- No OOS - shift over labels
+            if opt.noOOS then
+                label = label - 1   -- No OOS - shift over labels
+            end
             local utt = data[3]
 
             -- Load current features
