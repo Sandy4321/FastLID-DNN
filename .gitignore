@@ -50,3 +50,4 @@ data_prep/feats_10/*
 data_prep/feats_30/*
 data_prep/feats_3_10/*
 models/*
+.nfs*

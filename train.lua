@@ -77,8 +77,9 @@ if opt.network == '' then
         outputs = 4       -- number of classes (three languages + OOS)
     end
     local hidden_units_1 = 1024
-    local hidden_units_2 = 512
-    local hidden_units_3 = 128
+    local hidden_units_2 = 1024
+    local hidden_units_3 = 512
+    local hidden_units_4 = 128
     local dropout_prob = 0.5
 
     model = nn.Sequential();  -- make a multi-layer perceptron
@@ -107,8 +108,17 @@ if opt.network == '' then
         model:add(nn.Dropout(dropout_prob))
     end
 
+    -- Fourth hidden layer with constant bias term and ReLU activation as well
+    model:add(nn.Linear(hidden_units_3, hidden_units_4))
+    model:add(nn.Add(hidden_units_4, true))
+    model:add(nn.ReLU())
+    if opt.dropout then
+        model:add(nn.Dropout(dropout_prob))
+    end
+
     -- Output layer with softmax layer
-    model:add(nn.Linear(hidden_units_3, outputs))
+    model:add(nn.Linear(hidden_units_4, outputs))
+    --model:add(nn.Linear(hidden_units_3, outputs))
     --model:add(nn.Linear(hidden_units_2, outputs))
     model:add(nn.LogSoftMax())
     print("Done setting up neural network.")
