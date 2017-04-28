@@ -68,9 +68,11 @@ if opt.network == '' then
         outputs = 4       -- number of classes (three languages + OOS)
     end
     local hidden_units_1 = 2048
-    local hidden_units_2 = 1024
-    local hidden_units_3 = 512
-    local hidden_units_4 = 256
+    local hidden_units_2 = 2048
+    local hidden_units_3 = 1024
+    local hidden_units_4 = 1024
+    local hidden_units_5 = 512
+    local hidden_units_6 = 256
     local dropout_prob = 0.5
 
     model = nn.Sequential();  -- make a multi-layer perceptron
@@ -95,9 +97,9 @@ if opt.network == '' then
     model:add(nn.Linear(hidden_units_2, hidden_units_3))
     model:add(nn.Add(hidden_units_3, true))
     model:add(nn.ReLU())
-    if opt.dropout then
-        model:add(nn.Dropout(dropout_prob))
-    end
+    --if opt.dropout then
+    --    model:add(nn.Dropout(dropout_prob))
+    --end
 
     -- Fourth hidden layer with constant bias term and ReLU activation as well
     model:add(nn.Linear(hidden_units_3, hidden_units_4))
@@ -107,8 +109,25 @@ if opt.network == '' then
         model:add(nn.Dropout(dropout_prob))
     end
 
+    -- Fifth hidden layer with constant bias term and ReLU activation as well
+    model:add(nn.Linear(hidden_units_4, hidden_units_5))
+    model:add(nn.Add(hidden_units_5, true))
+    model:add(nn.ReLU())
+    if opt.dropout then
+        model:add(nn.Dropout(dropout_prob))
+    end
+
+    -- Sixth hidden layer with constant bias term and ReLU activation as well
+    model:add(nn.Linear(hidden_units_5, hidden_units_6))
+    model:add(nn.Add(hidden_units_6, true))
+    model:add(nn.ReLU())
+    if opt.dropout then
+        model:add(nn.Dropout(dropout_prob))
+    end
+
     -- Output layer with softmax layer
-    model:add(nn.Linear(hidden_units_4, outputs))
+    model:add(nn.Linear(hidden_units_6, outputs))
+    --model:add(nn.Linear(hidden_units_4, outputs))
     --model:add(nn.Linear(hidden_units_3, outputs))
     --model:add(nn.Linear(hidden_units_2, outputs))
     model:add(nn.LogSoftMax())

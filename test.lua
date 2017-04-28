@@ -169,8 +169,6 @@ local correct_utterances = 0
 for i=1,max_utterances do
     -- Test whole utterance
     local label = utterance_labels[i]
-    print("Label is " .. label .. ", probs are:")
-    print(utterance_output_avgs[i])
     local confidence, classification_tensor = torch.max(utterance_output_avgs[i], 1)
     local classification = classification_tensor[1]
     if classification == label then
