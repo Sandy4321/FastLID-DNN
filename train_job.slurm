@@ -18,7 +18,7 @@ module load engaging/torch/20160128
 echo "TRAINING DNN MODEL"
 optim=Adam
 epochs=2
-batchsize=200
+batchsize=128
 #network=/pool001/atitus/FastLID-DNN/models/1k_1k_256_${optim}_e${epochs}_b${batchsize}
 #filename=/pool001/atitus/FastLID-DNN/models/lmvals_${optim}_e${epochs}_b${batchsize}
 filename=/pool001/atitus/FastLID-DNN/models/dumb
