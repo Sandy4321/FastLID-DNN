@@ -8,7 +8,7 @@
 #SBATCH -p sched_engaging_default
 #SBATCH --time=01:00:00  
 #SBATCH --exclusive  
-#SBATCH -J test
+#SBATCH -J test_tandem
 . /etc/profile.d/modules.sh  
 module load cuda/8.0
 module load engaging/OpenBLAS/0.2.14
@@ -19,6 +19,6 @@ echo "TESTING DNN TANDEM MODEL"
 detector_network=/pool001/atitus/FastLID-DNN/models/detector_1k_1k_256_Adam_e500_b32
 inset_network=/pool001/atitus/FastLID-DNN/models/no_oos_1k_512_256_Adam_e500_b32
 threads=16
-echo "TESTING TANDEM NETWORK WITH FILENAME ${network}"
+echo "TESTING TANDEM NETWORK WITH DETECTOR FILENAME ${detector_network} AND IN-SET FILENAME ${inset_network}"
 th test_tandem.lua --detectorNet="${detector_network}" --insetNet="${inset_network}" --gpu -t $threads
 echo "COMPLETED TESTING"

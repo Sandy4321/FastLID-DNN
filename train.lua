@@ -78,8 +78,8 @@ if opt.network == '' then
     end
     local hidden_units_1 = 1024
     local hidden_units_2 = 1024
-    local hidden_units_3 = 512
-    local hidden_units_4 = 128
+    local hidden_units_3 = 1024
+    local hidden_units_4 = 1024
     local dropout_prob = 0.5
 
     model = nn.Sequential();  -- make a multi-layer perceptron

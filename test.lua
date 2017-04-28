@@ -118,8 +118,9 @@ for i=1,dataset:size() do
     end
 
     -- Evaluate this frame and convert negative log likelihoods to probabilities
-    local output_nlls = model:forward(input)
-    local output_probs = torch.exp(output_nlls)
+    --local output_nlls = model:forward(input)
+    --local output_probs = torch.exp(output_nlls)
+    local output_probs = model:forward(input)
     local confidence, classification_tensor = torch.max(output_probs, 1)
     local classification = classification_tensor[1]
     if classification == label then

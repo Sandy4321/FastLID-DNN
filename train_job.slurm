@@ -20,9 +20,8 @@ optim=Adam
 epochs=500
 batchsize=32
 #network=/pool001/atitus/FastLID-DNN/models/1k_1k_256_${optim}_e${epochs}_b${batchsize}
-#filename=/pool001/atitus/FastLID-DNN/models/full_1k_1k_256_${optim}_e${epochs}_b${batchsize}
-filename=/pool001/atitus/FastLID-DNN/models/full_1k_1k_512_128_${optim}_e${epochs}_b${batchsize}_dropout
+filename=/pool001/atitus/FastLID-DNN/models/1k_1k_1k_1k_${optim}_e${epochs}_b${batchsize}
 threads=16
 #th train.lua -n $network --netFilename="${filename}" --gpu -o $optim -e $epochs -t $threads -b $batchsize
-th train.lua --netFilename="${filename}" --gpu -o $optim -e $epochs -t $threads -b $batchsize --dropout
+th train.lua --netFilename="${filename}" --gpu -o $optim -e $epochs -t $threads -b $batchsize
 echo "COMPLETED TRAINING"

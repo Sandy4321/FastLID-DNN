@@ -128,35 +128,37 @@ for i=1,dataset:size() do
     -- Evaluate this frame and convert negative log likelihoods to probabilities
     local output_probs = torch.zeros(4)
 
-    local detector_nlls = detectorModel:forward(input)
-    local detector_probs = torch.exp(detector_nlls)
-    if detector_probs[lang2label["outofset"]] > 0.5 then
+    --local detector_nlls = detectorModel:forward(input)
+    --local detector_probs = torch.exp(detector_nlls)
+    local detector_probs = detectorModel:forward(input)
+    if detector_probs[lang2label["outofset"]] > math.log(0.5) then
         -- Out of set!
         if label == lang2label["outofset"] then
             correct_frames = correct_frames + 1
         end
 
-        -- Evenly divide probability mass among in-set classes
-        output_probs[lang2label["outofset"]] = detector_probs[lang2label["outofset"]]
-        output_probs[lang2label["english"]] = detector_probs[lang2label["inset"]] / 3
-        output_probs[lang2label["german"]] = detector_probs[lang2label["inset"]] / 3
-        output_probs[lang2label["mandarin"]] = detector_probs[lang2label["inset"]] / 3
+        -- All probability mass on out-of-set
+        output_probs[lang2label["outofset"]] = math.log(1.0)
+        output_probs[lang2label["english"]] = math.log(0.0)
+        output_probs[lang2label["german"]] = math.log(0.0)
+        output_probs[lang2label["mandarin"]] = math.log(0.0)
     else
         -- In set! Figure out which one
-        local inset_nlls = insetModel:forward(input)
-        local inset_probs = torch.exp(inset_nlls)
+        --local inset_nlls = insetModel:forward(input)
+        --local inset_probs = torch.exp(inset_nlls)
+        local inset_probs = insetModel:forward(input)
 
-        local confidence, classification_tensor = torch.max(output_probs, 1)
-        local classification = classification_tensor[1]
+        local confidence, classification_tensor = torch.max(inset_probs, 1)
+        local classification = classification_tensor[1] + 1
         if classification == label then
             correct_frames = correct_frames + 1
         end
 
         -- Give out of set no probability mass here (maybe can be reweighted later on?)
-        output_probs[lang2label["outofset"]] = 0
-        output_probs[lang2label["english"]] = inset_probs[lang2label["english"]]
-        output_probs[lang2label["german"]] = inset_probs[lang2label["german"]]
-        output_probs[lang2label["mandarin"]] = inset_probs[lang2label["mandarin"]]
+        output_probs[lang2label["outofset"]] = math.log(0)
+        output_probs[lang2label["english"]] = inset_probs[lang2label["english"] - 1]
+        output_probs[lang2label["german"]] = inset_probs[lang2label["german"] - 1]
+        output_probs[lang2label["mandarin"]] = inset_probs[lang2label["mandarin"] - 1]
     end
             
     -- Update confusion matrix
@@ -201,8 +203,6 @@ local correct_utterances = 0
 for i=1,max_utterances do
     -- Test whole utterance
     local label = utterance_labels[i]
-    print("Label is " .. label .. ", probs are:")
-    print(utterance_output_avgs[i])
     local confidence, classification_tensor = torch.max(utterance_output_avgs[i], 1)
     local classification = classification_tensor[1]
     if classification == label then
