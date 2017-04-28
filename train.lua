@@ -67,6 +67,7 @@ local readCfg = {
 }
 local dataset, label2uttcount = lre03DatasetReader.read(readCfg)
 
+local optimState = {}
 if opt.network == '' then
     print("Setting up neural network...")
     -- Use historical frames as context in input vector
@@ -126,12 +127,20 @@ else
     print("Loading existing neural network " .. opt.network .. "...")
     model = torch.load(opt.network)
     print("Loaded existing neural network " .. opt.network)
+    
+    print("Loading existing neural network " .. opt.network .. "...")
+    local oldOptimStateFilename = opt.network .. "_optimState"
+    optimState = torch.load(oldOptimStateFilename)
+    print("Loaded existing neural network " .. opt.network)
 end
 
 -- Set up for training (i.e. activate Dropout)
 model:training()
 print("Using model:")
 print(model)
+
+print("Using optimizer state:")
+print(optimState)
 
 if opt.gpu then
     -- Convert our network to CUDA-compatible version
@@ -254,9 +263,9 @@ for epoch = 1,opt.epochs do
         
         -- Optimize gradient
         if opt.optimization == "Adam" then
-            optim.adam(eval_func, parameters, adam_config)
+            optim.adam(eval_func, parameters, adam_config, optimState)
         elseif opt.optimization == "NAG" then
-            optim.nag(eval_func, parameters, nag_config)
+            optim.nag(eval_func, parameters, nag_config, optimState)
         else
             error("Unknown optimization method " .. opt.optimization)
         end
@@ -276,8 +285,15 @@ for epoch = 1,opt.epochs do
     print(confusion)
     confusion:zero()
 
+    -- Save the network for future training or testing
     print("Saving current network state...")
     torch.save(opt.netFilename, model)
+    print("Saved.")
+    
+    -- Save the optimizer state so we can pick up from a checkpoint later!
+    print("Saving current optimizer state...")
+    local optimStateFilename = opt.netFilename .. "_optimState"
+    torch.save(opt.optimStateFilename, optimState)
     print("Saved.")
 end
 print("Done training neural network.")

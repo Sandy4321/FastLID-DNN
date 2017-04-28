@@ -1,0 +1,913 @@
+TRAINING DNN MODEL
+[?1034hSet nb of threads to 16	
+Reading dataset...	
+Done setting up dataset with 1473854 datapoints across 2187 utterances.	
+Setting up neural network...	
+Done setting up neural network.	
+Using model:	
+nn.Sequential {
+  [input -> (1) -> (2) -> (3) -> (4) -> (5) -> (6) -> (7) -> (8) -> (9) -> (10) -> (11) -> (12) -> (13) -> (14) -> output]
+  (1): nn.Linear(429 -> 2048)
+  (2): nn.Add
+  (3): nn.ReLU
+  (4): nn.Linear(2048 -> 2048)
+  (5): nn.Add
+  (6): nn.ReLU
+  (7): nn.Linear(2048 -> 512)
+  (8): nn.Add
+  (9): nn.ReLU
+  (10): nn.Linear(512 -> 256)
+  (11): nn.Add
+  (12): nn.ReLU
+  (13): nn.Linear(256 -> 4)
+  (14): nn.LogSoftMax
+}
+Convert network to CUDA	
+Training neural network using minibatch size 32...	
+Convert criterion to CUDA	
+================================	
+Epoch 1:	
+  time to learn 1 sample = 0.48751774385033ms	
+  time to learn all 1473854 samples = 718529.97684479ms	
+================================	
+ConfusionMatrix:
+[[  152536   33615   86413   95619]   41.429% 	[class: 1]
+ [   44092  237367   44799   42016]   64.454% 	[class: 2]
+ [   64956   28473  222959   51096]   60.672% 	[class: 3]
+ [   73806   24650   53547  217910]]  58.908% 	[class: 4]
+ + average row correct: 56.365878134966% 
+ + average rowUcol correct (VOC measure): 39.807280153036% 
+ + global correct: 56.367319965207%
+Saving current network state...	
+Saved.	
+================================	
+Epoch 2:	
+  time to learn 1 sample = 0.4846144061465ms	
+  time to learn all 1473854 samples = 714250.88095665ms	
+================================	
+ConfusionMatrix:
+[[  194195   29596   67775   76617]   52.744% 	[class: 1]
+ [   43395  261987   31101   31791]   71.139% 	[class: 2]
+ [   56704   19492  258272   33016]   70.281% 	[class: 3]
+ [   70261   19586   39105  240961]]  65.140% 	[class: 4]
+ + average row correct: 64.826092123985% 
+ + average rowUcol correct (VOC measure): 48.559340834618% 
+ + global correct: 64.824263461645%
+Saving current network state...	
+Saved.	
+================================	
+Epoch 3:	
+  time to learn 1 sample = 0.48224892690613ms	
+  time to learn all 1473854 samples = 710764.50991631ms	
+================================	
+ConfusionMatrix:
+[[  214626   27924   58343   67290]   58.293% 	[class: 1]
+ [   39798  276333   25161   26982]   75.035% 	[class: 2]
+ [   50087   16217  274507   26673]   74.699% 	[class: 3]
+ [   64058   17810   31466  256579]]  69.362% 	[class: 4]
+ + average row correct: 69.347232580185% 
+ + average rowUcol correct (VOC measure): 53.62641364336% 
+ + global correct: 69.345064029409%
+Saving current network state...	
+Saved.	
+================================	
+Epoch 4:	
+  time to learn 1 sample = 0.48009706259459ms	
+  time to learn all 1473854 samples = 707592.97609329ms	
+================================	
+ConfusionMatrix:
+[[  228727   26423   51943   61090]   62.123% 	[class: 1]
+ [   36564  286926   21181   23603]   77.911% 	[class: 2]
+ [   45213   14304  285443   22524]   77.675% 	[class: 3]
+ [   58248   16146   26867  268652]]  72.626% 	[class: 4]
+ + average row correct: 72.583718597889% 
+ + average rowUcol correct (VOC measure): 57.46541172266% 
+ + global correct: 72.581680410678%
+Saving current network state...	
+Saved.	
+================================	
+Epoch 5:	
+  time to learn 1 sample = 0.48024326842614ms	
+  time to learn all 1473854 samples = 707808.46214294ms	
+================================	
+ConfusionMatrix:
+[[  240764   24852   46937   55630]   65.392% 	[class: 1]
+ [   33768  295005   18293   21208]   80.105% 	[class: 2]
+ [   41325   12957  293242   19960]   79.797% 	[class: 3]
+ [   53639   14664   22983  278627]]  75.322% 	[class: 4]
+ + average row correct: 75.154189765453% 
+ + average rowUcol correct (VOC measure): 60.65416559577% 
+ + global correct: 75.152491359388%
+Saving current network state...	
+Saved.	
+================================	
+Epoch 6:	
+  time to learn 1 sample = 0.4815498441498ms	
+  time to learn all 1473854 samples = 709734.16399956ms	
+================================	
+ConfusionMatrix:
+[[  250937   23262   42270   51714]   68.156% 	[class: 1]
+ [   31746  301219   16064   19245]   81.792% 	[class: 2]
+ [   38153   12139  299708   17484]   81.557% 	[class: 3]
+ [   49883   13238   20501  286291]]  77.394% 	[class: 4]
+ + average row correct: 77.224624156952% 
+ + average rowUcol correct (VOC measure): 63.321633636951% 
+ + global correct: 77.223049230114%
+Saving current network state...	
+Saved.	
+================================	
+Epoch 7:	
+  time to learn 1 sample = 0.48031392803734ms	
+  time to learn all 1473854 samples = 707912.60409355ms	
+================================	
+ConfusionMatrix:
+[[  259995   21730   38972   47486]   70.616% 	[class: 1]
+ [   29923  306197   14635   17519]   83.144% 	[class: 2]
+ [   35866   10817  304892   15909]   82.967% 	[class: 3]
+ [   46686   12243   17947  293037]]  79.218% 	[class: 4]
+ + average row correct: 78.986184298992% 
+ + average rowUcol correct (VOC measure): 65.666261315346% 
+ + global correct: 78.984824819826%
+Saving current network state...	
+Saved.	
+================================	
+Epoch 8:	
+  time to learn 1 sample = 0.48085305328563ms	
+  time to learn all 1473854 samples = 708707.19599724ms	
+================================	
+ConfusionMatrix:
+[[  267155   21028   35914   44086]   72.560% 	[class: 1]
+ [   27978  311284   13006   16006]   84.525% 	[class: 2]
+ [   33624   10214  309268   14378]   84.158% 	[class: 3]
+ [   43973   11595   15893  298452]]  80.682% 	[class: 4]
+ + average row correct: 80.481347441673% 
+ + average rowUcol correct (VOC measure): 67.702494561672% 
+ + global correct: 80.480088258403%
+Saving current network state...	
+Saved.	
+================================	
+Epoch 9:	
+  time to learn 1 sample = 0.47995073673312ms	
+  time to learn all 1473854 samples = 707377.31313705ms	
+================================	
+ConfusionMatrix:
+[[  272978   20156   33682   41367]   74.142% 	[class: 1]
+ [   26713  314764   11928   14869]   85.470% 	[class: 2]
+ [   32009    9820  312408   13247]   85.013% 	[class: 3]
+ [   41778   11351   14680  302104]]  81.669% 	[class: 4]
+ + average row correct: 81.573401391506% 
+ + average rowUcol correct (VOC measure): 69.218897819519% 
+ + global correct: 81.572123154668%
+Saving current network state...	
+Saved.	
+================================	
+Epoch 10:	
+  time to learn 1 sample = 0.47995499957489ms	
+  time to learn all 1473854 samples = 707383.59594345ms	
+================================	
+ConfusionMatrix:
+[[  277745   19846   31228   39364]   75.437% 	[class: 1]
+ [   25400  318089   10872   13913]   86.373% 	[class: 2]
+ [   30136    9464  315539   12345]   85.865% 	[class: 3]
+ [   38937   10774   13377  306825]]  82.945% 	[class: 4]
+ + average row correct: 82.654865086079% 
+ + average rowUcol correct (VOC measure): 70.744398236275% 
+ + global correct: 82.653912802761%
+Saving current network state...	
+Saved.	
+================================	
+Epoch 11:	
+  time to learn 1 sample = 0.48036309986541ms	
+  time to learn all 1473854 samples = 707985.07618904ms	
+================================	
+ConfusionMatrix:
+[[  283356   18844   29215   36768]   76.961% 	[class: 1]
+ [   23786  321765    9868   12855]   87.371% 	[class: 2]
+ [   28319    8864  318814   11487]   86.756% 	[class: 3]
+ [   36679   10159   12407  310668]]  83.984% 	[class: 4]
+ + average row correct: 83.767920732498% 
+ + average rowUcol correct (VOC measure): 72.350953519344% 
+ + global correct: 83.766980989976%
+Saving current network state...	
+Saved.	
+================================	
+Epoch 12:	
+  time to learn 1 sample = 0.47984176784033ms	
+  time to learn all 1473854 samples = 707216.70889854ms	
+================================	
+ConfusionMatrix:
+[[  286634   17990   28157   35402]   77.851% 	[class: 1]
+ [   22940  323806    9393   12135]   87.925% 	[class: 2]
+ [   27428    8715  320656   10685]   87.257% 	[class: 3]
+ [   35523    9743   11731  312916]]  84.592% 	[class: 4]
+ + average row correct: 84.406293928623% 
+ + average rowUcol correct (VOC measure): 73.289854824543% 
+ + global correct: 84.405375294975%
+Saving current network state...	
+Saved.	
+================================	
+Epoch 13:	
+  time to learn 1 sample = 0.48837144585657ms	
+  time to learn all 1473854 samples = 719788.20896149ms	
+================================	
+ConfusionMatrix:
+[[  290667   17434   26578   33504]   78.946% 	[class: 1]
+ [   21989  325877    8870   11538]   88.488% 	[class: 2]
+ [   25757    8024  323397   10306]   88.003% 	[class: 3]
+ [   33515    9359   10941  316098]]  85.452% 	[class: 4]
+ + average row correct: 85.222247242928% 
+ + average rowUcol correct (VOC measure): 74.496658146381% 
+ + global correct: 85.221399134514%
+Saving current network state...	
+Saved.	
+================================	
+Epoch 14:	
+  time to learn 1 sample = 0.48428175857593ms	
+  time to learn all 1473854 samples = 713760.60700417ms	
+================================	
+ConfusionMatrix:
+[[  293773   17182   25320   31908]   79.790% 	[class: 1]
+ [   20898  328236    8385   10755]   89.128% 	[class: 2]
+ [   24701    7787  325381    9615]   88.543% 	[class: 3]
+ [   32256    9194   10297  318166]]  86.011% 	[class: 4]
+ + average row correct: 85.868020355701% 
+ + average rowUcol correct (VOC measure): 75.465039908886% 
+ + global correct: 85.867121166683%
+Saving current network state...	
+Saved.	
+================================	
+Epoch 15:	
+  time to learn 1 sample = 0.48575025353661ms	
+  time to learn all 1473854 samples = 715924.95417595ms	
+================================	
+ConfusionMatrix:
+[[  297088   16699   24075   30321]   80.690% 	[class: 1]
+ [   20396  330105    7760   10013]   89.636% 	[class: 2]
+ [   24056    7642  326815    8971]   88.933% 	[class: 3]
+ [   31058    8934    9642  320279]]  86.582% 	[class: 4]
+ + average row correct: 86.460345983505% 
+ + average rowUcol correct (VOC measure): 76.369638741016% 
+ + global correct: 86.459513628894%
+Saving current network state...	
+Saved.	
+================================	
+Epoch 16:	
+  time to learn 1 sample = 0.48227564537341ms	
+  time to learn all 1473854 samples = 710803.88903618ms	
+================================	
+ConfusionMatrix:
+[[  299885   16043   23124   29131]   81.450% 	[class: 1]
+ [   19531  331764    7493    9486]   90.086% 	[class: 2]
+ [   22954    7360  328509    8661]   89.394% 	[class: 3]
+ [   29898    8760    9204  322051]]  87.061% 	[class: 4]
+ + average row correct: 86.99788749218% 
+ + average rowUcol correct (VOC measure): 77.19200104475% 
+ + global correct: 86.997015986658%
+Saving current network state...	
+Saved.	
+================================	
+Epoch 17:	
+  time to learn 1 sample = 0.4788248631504ms	
+  time to learn all 1473854 samples = 705717.93985367ms	
+================================	
+ConfusionMatrix:
+[[  301681   15519   22285   28698]   81.938% 	[class: 1]
+ [   18817  332860    7071    9526]   90.384% 	[class: 2]
+ [   22518    7134  329332    8500]   89.618% 	[class: 3]
+ [   28809    8539    8877  323688]]  87.504% 	[class: 4]
+ + average row correct: 87.360861897469% 
+ + average rowUcol correct (VOC measure): 77.753819525242% 
+ + global correct: 87.360145577513%
+Saving current network state...	
+Saved.	
+================================	
+Epoch 18:	
+  time to learn 1 sample = 0.48329154048549ms	
+  time to learn all 1473854 samples = 712301.1701107ms	
+================================	
+ConfusionMatrix:
+[[  305127   14947   21361   26748]   82.874% 	[class: 1]
+ [   17623  335407    6625    8619]   91.075% 	[class: 2]
+ [   21173    6755  331703    7853]   90.263% 	[class: 3]
+ [   27280    8041    8422  326170]]  88.175% 	[class: 4]
+ + average row correct: 88.096790015697% 
+ + average rowUcol correct (VOC measure): 78.902591764927% 
+ + global correct: 88.096039363465%
+Saving current network state...	
+Saved.	
+================================	
+Epoch 19:	
+  time to learn 1 sample = 0.48434936162993ms	
+  time to learn all 1473854 samples = 713860.24403572ms	
+================================	
+ConfusionMatrix:
+[[  305393   15644   21001   26145]   82.946% 	[class: 1]
+ [   17259  335967    6527    8521]   91.227% 	[class: 2]
+ [   21115    7177  331472    7720]   90.200% 	[class: 3]
+ [   27089    8460    8341  326023]]  88.135% 	[class: 4]
+ + average row correct: 88.127216696739% 
+ + average rowUcol correct (VOC measure): 78.940832614899% 
+ + global correct: 88.126435861354%
+Saving current network state...	
+Saved.	
+================================	
+Epoch 20:	
+  time to learn 1 sample = 0.4844699163223ms	
+  time to learn all 1473854 samples = 714037.92405128ms	
+================================	
+ConfusionMatrix:
+[[  307729   14950   19984   25520]   83.580% 	[class: 1]
+ [   16334  337413    6142    8385]   91.620% 	[class: 2]
+ [   20070    6769  333208    7437]   90.673% 	[class: 3]
+ [   25495    8068    7725  328625]]  88.838% 	[class: 4]
+ + average row correct: 88.677948713303% 
+ + average rowUcol correct (VOC measure): 79.812033474445% 
+ + global correct: 88.677372385596%
+Saving current network state...	
+Saved.	
+================================	
+Epoch 21:	
+  time to learn 1 sample = 0.48291205503801ms	
+  time to learn all 1473854 samples = 711741.86396599ms	
+================================	
+ConfusionMatrix:
+[[  311003   13895   19283   24002]   84.470% 	[class: 1]
+ [   16269  338375    6004    7626]   91.881% 	[class: 2]
+ [   19452    6230  334718    7084]   91.084% 	[class: 3]
+ [   24971    7509    7490  329943]]  89.195% 	[class: 4]
+ + average row correct: 89.157362282276% 
+ + average rowUcol correct (VOC measure): 80.588428676128% 
+ + global correct: 89.156660021956%
+Saving current network state...	
+Saved.	
+================================	
+Epoch 22:	
+  time to learn 1 sample = 0.48188797055264ms	
+  time to learn all 1473854 samples = 710232.5129509ms	
+================================	
+ConfusionMatrix:
+[[  312406   14001   18402   23374]   84.851% 	[class: 1]
+ [   15521  339743    5494    7516]   92.253% 	[class: 2]
+ [   19020    6275  335459    6730]   91.285% 	[class: 3]
+ [   24326    7596    7100  330891]]  89.451% 	[class: 4]
+ + average row correct: 89.459972083569% 
+ + average rowUcol correct (VOC measure): 81.073704361916% 
+ + global correct: 89.459268014335%
+Saving current network state...	
+Saved.	
+================================	
+Epoch 23:	
+  time to learn 1 sample = 0.48027502928265ms	
+  time to learn all 1473854 samples = 707855.27300835ms	
+================================	
+ConfusionMatrix:
+[[  314672   13381   17633   22497]   85.466% 	[class: 1]
+ [   15006  340836    5260    7172]   92.550% 	[class: 2]
+ [   18395    6118  336580    6391]   91.590% 	[class: 3]
+ [   23639    7463    6699  332112]]  89.781% 	[class: 4]
+ + average row correct: 89.846813678741% 
+ + average rowUcol correct (VOC measure): 81.702192127705% 
+ + global correct: 89.84607701984%
+Saving current network state...	
+Saved.	
+================================	
+Epoch 24:	
+  time to learn 1 sample = 0.48598494698212ms	
+  time to learn all 1473854 samples = 716270.85804939ms	
+================================	
+ConfusionMatrix:
+[[  315645   13154   17635   21749]   85.730% 	[class: 1]
+ [   14973  341119    5298    6884]   92.626% 	[class: 2]
+ [   18191    5911  337120    6262]   91.737% 	[class: 3]
+ [   23064    7385    6623  332841]]  89.978% 	[class: 4]
+ + average row correct: 90.018098056316% 
+ + average rowUcol correct (VOC measure): 81.980593502522% 
+ + global correct: 90.017396567096%
+Saving current network state...	
+Saved.	
+================================	
+Epoch 25:	
+  time to learn 1 sample = 0.48269984811519ms	
+  time to learn all 1473854 samples = 711429.10194397ms	
+================================	
+ConfusionMatrix:
+[[  317080   12899   16959   21245]   86.120% 	[class: 1]
+ [   14292  342199    5125    6658]   92.920% 	[class: 2]
+ [   17579    5781  338013    6111]   91.980% 	[class: 3]
+ [   22275    7140    6346  334152]]  90.333% 	[class: 4]
+ + average row correct: 90.338203310966% 
+ + average rowUcol correct (VOC measure): 82.502982020378% 
+ + global correct: 90.337577534817%
+Saving current network state...	
+Saved.	
+================================	
+Epoch 26:	
+  time to learn 1 sample = 0.48638391464533ms	
+  time to learn all 1473854 samples = 716858.87813568ms	
+================================	
+ConfusionMatrix:
+[[  319386   12269   16187   20341]   86.747% 	[class: 1]
+ [   13405  343679    4824    6366]   93.322% 	[class: 2]
+ [   16711    5735  339233    5805]   92.312% 	[class: 3]
+ [   21039    6850    6094  335930]]  90.813% 	[class: 4]
+ + average row correct: 90.798412263393% 
+ + average rowUcol correct (VOC measure): 83.258409798145% 
+ + global correct: 90.797867359996%
+Saving current network state...	
+Saved.	
+================================	
+Epoch 27:	
+  time to learn 1 sample = 0.48235781701917ms	
+  time to learn all 1473854 samples = 710924.99804497ms	
+================================	
+ConfusionMatrix:
+[[  318751   12966   16136   20330]   86.574% 	[class: 1]
+ [   13716  343231    4837    6490]   93.200% 	[class: 2]
+ [   16756    5935  338874    5919]   92.215% 	[class: 3]
+ [   21116    7034    6076  335687]]  90.748% 	[class: 4]
+ + average row correct: 90.684036910534% 
+ + average rowUcol correct (VOC measure): 83.066056668758% 
+ + global correct: 90.683541246284%
+Saving current network state...	
+Saved.	
+================================	
+Epoch 28:	
+  time to learn 1 sample = 0.48328977902207ms	
+  time to learn all 1473854 samples = 712298.57397079ms	
+================================	
+ConfusionMatrix:
+[[  319784   12522   16004   19873]   86.855% 	[class: 1]
+ [   13670  343402    4934    6268]   93.246% 	[class: 2]
+ [   16302    5673  339721    5788]   92.445% 	[class: 3]
+ [   20618    6872    6210  336213]]  90.890% 	[class: 4]
+ + average row correct: 90.858958661556% 
+ + average rowUcol correct (VOC measure): 83.35487395525% 
+ + global correct: 90.858388958472%
+Saving current network state...	
+Saved.	
+================================	
+Epoch 29:	
+  time to learn 1 sample = 0.48304256525827ms	
+  time to learn all 1473854 samples = 711934.21697617ms	
+================================	
+ConfusionMatrix:
+[[  321704   12020   15300   19159]   87.376% 	[class: 1]
+ [   12880  344750    4670    5974]   93.612% 	[class: 2]
+ [   15965    5535  340416    5568]   92.634% 	[class: 3]
+ [   20013    6965    5813  337122]]  91.135% 	[class: 4]
+ + average row correct: 91.189549863338% 
+ + average rowUcol correct (VOC measure): 83.905167877674% 
+ + global correct: 91.188950873017%
+Saving current network state...	
+Saved.	
+================================	
+Epoch 30:	
+  time to learn 1 sample = 0.48314813950418ms	
+  time to learn all 1473854 samples = 712089.81800079ms	
+================================	
+ConfusionMatrix:
+[[  322971   11968   14600   18644]   87.720% 	[class: 1]
+ [   12529  345549    4396    5800]   93.829% 	[class: 2]
+ [   15691    5463  340985    5345]   92.789% 	[class: 3]
+ [   19526    6877    5557  337953]]  91.360% 	[class: 4]
+ + average row correct: 91.424690186977% 
+ + average rowUcol correct (VOC measure): 84.299771487713% 
+ + global correct: 91.424116635705%
+Saving current network state...	
+Saved.	
+================================	
+Epoch 31:	
+  time to learn 1 sample = 0.48316095892669ms	
+  time to learn all 1473854 samples = 712108.71195793ms	
+================================	
+ConfusionMatrix:
+[[  323139   11753   14537   18754]   87.766% 	[class: 1]
+ [   12903  344780    4484    6107]   93.621% 	[class: 2]
+ [   15263    5575  341074    5572]   92.813% 	[class: 3]
+ [   19382    6714    5465  338352]]  91.468% 	[class: 4]
+ + average row correct: 91.416916251183% 
+ + average rowUcol correct (VOC measure): 84.285341203213% 
+ + global correct: 91.416449661907%
+Saving current network state...	
+Saved.	
+================================	
+Epoch 32:	
+  time to learn 1 sample = 0.49042426186189ms	
+  time to learn all 1473854 samples = 722813.76004219ms	
+================================	
+ConfusionMatrix:
+[[  324934   11558   14154   17537]   88.253% 	[class: 1]
+ [   12054  346397    4331    5492]   94.060% 	[class: 2]
+ [   14818    5510  342050    5106]   93.079% 	[class: 3]
+ [   18905    6805    5327  338876]]  91.610% 	[class: 4]
+ + average row correct: 91.750378906727% 
+ + average rowUcol correct (VOC measure): 84.844154119492% 
+ + global correct: 91.749725549478%
+Saving current network state...	
+Saved.	
+================================	
+Epoch 33:	
+  time to learn 1 sample = 0.48350921993172ms	
+  time to learn all 1473854 samples = 712621.99783325ms	
+================================	
+ConfusionMatrix:
+[[  325907   11215   13778   17283]   88.518% 	[class: 1]
+ [   11988  346961    4180    5145]   94.213% 	[class: 2]
+ [   14585    5296  342668    4935]   93.247% 	[class: 3]
+ [   18654    6572    5192  339495]]  91.777% 	[class: 4]
+ + average row correct: 91.938608884811% 
+ + average rowUcol correct (VOC measure): 85.166604816914% 
+ + global correct: 91.937939578819%
+Saving current network state...	
+Saved.	
+================================	
+Epoch 34:	
+  time to learn 1 sample = 0.48267733441591ms	
+  time to learn all 1473854 samples = 711395.92003822ms	
+================================	
+ConfusionMatrix:
+[[  327523   10926   13132   16602]   88.957% 	[class: 1]
+ [   11310  347886    3937    5141]   94.464% 	[class: 2]
+ [   13962    5297  343524    4701]   93.480% 	[class: 3]
+ [   17843    6408    4874  340788]]  92.127% 	[class: 4]
+ + average row correct: 92.2567486763% 
+ + average rowUcol correct (VOC measure): 85.704830288887% 
+ + global correct: 92.256152916096%
+Saving current network state...	
+Saved.	
+================================	
+Epoch 35:	
+  time to learn 1 sample = 0.4835283554842ms	
+  time to learn all 1473854 samples = 712650.20084381ms	
+================================	
+ConfusionMatrix:
+[[  326728   11334   13217   16904]   88.741% 	[class: 1]
+ [   11437  347443    3992    5402]   94.344% 	[class: 2]
+ [   14107    5456  342912    5009]   93.313% 	[class: 3]
+ [   17571    6565    5019  340758]]  92.118% 	[class: 4]
+ + average row correct: 92.12903380394% 
+ + average rowUcol correct (VOC measure): 85.48269122839% 
+ + global correct: 92.128596183883%
+Saving current network state...	
+Saved.	
+================================	
+Epoch 36:	
+  time to learn 1 sample = 0.48457557274503ms	
+  time to learn all 1473854 samples = 714193.64619255ms	
+================================	
+ConfusionMatrix:
+[[  327144   11395   12971   16673]   88.854% 	[class: 1]
+ [   11523  347159    4095    5497]   94.266% 	[class: 2]
+ [   13887    5588  343074    4935]   93.358% 	[class: 3]
+ [   17619    6777    4983  340534]]  92.058% 	[class: 4]
+ + average row correct: 92.133882641792% 
+ + average rowUcol correct (VOC measure): 85.488855838776% 
+ + global correct: 92.133345636678%
+Saving current network state...	
+Saved.	
+================================	
+Epoch 37:	
+  time to learn 1 sample = 0.48526241131661ms	
+  time to learn all 1473854 samples = 715205.94596863ms	
+================================	
+ConfusionMatrix:
+[[  328179   10861   12797   16346]   89.135% 	[class: 1]
+ [   11528  347559    4080    5107]   94.375% 	[class: 2]
+ [   13556    5427  343747    4754]   93.541% 	[class: 3]
+ [   17130    6468    4740  341575]]  92.339% 	[class: 4]
+ + average row correct: 92.347452044487% 
+ + average rowUcol correct (VOC measure): 85.855816304684% 
+ + global correct: 92.347003163136%
+Saving current network state...	
+Saved.	
+================================	
+Epoch 38:	
+  time to learn 1 sample = 0.48306147417743ms	
+  time to learn all 1473854 samples = 711962.0859623ms	
+================================	
+ConfusionMatrix:
+[[  327629   11327   12744   16483]   88.985% 	[class: 1]
+ [   11374  347537    4112    5251]   94.369% 	[class: 2]
+ [   14143    5856  342853    4632]   93.297% 	[class: 3]
+ [   17280    6744    4510  341379]]  92.286% 	[class: 4]
+ + average row correct: 92.23455041647% 
+ + average rowUcol correct (VOC measure): 85.662016272545% 
+ + global correct: 92.234237583913%
+Saving current network state...	
+Saved.	
+================================	
+Epoch 39:	
+  time to learn 1 sample = 0.4838373102475ms	
+  time to learn all 1473854 samples = 713105.55505753ms	
+================================	
+ConfusionMatrix:
+[[  329456   10781   12367   15579]   89.482% 	[class: 1]
+ [   10404  349211    3816    4843]   94.824% 	[class: 2]
+ [   13289    5405  344452    4338]   93.733% 	[class: 3]
+ [   16330    6515    4368  342700]]  92.643% 	[class: 4]
+ + average row correct: 92.670300602913% 
+ + average rowUcol correct (VOC measure): 86.406479775906% 
+ + global correct: 92.669898103883%
+Saving current network state...	
+Saved.	
+================================	
+Epoch 40:	
+  time to learn 1 sample = 0.48304040698433ms	
+  time to learn all 1473854 samples = 711931.03599548ms	
+================================	
+ConfusionMatrix:
+[[  329041   11637   12344   15161]   89.369% 	[class: 1]
+ [   10925  349346    3087    4916]   94.860% 	[class: 2]
+ [   16779    5630  339767    5308]   92.458% 	[class: 3]
+ [   15545    7865    5260  341243]]  92.250% 	[class: 4]
+ + average row correct: 92.234095931053% 
+ + average rowUcol correct (VOC measure): 85.657449066639% 
+ + global correct: 92.234169734587%
+Saving current network state...	
+Saved.	
+================================	
+Epoch 41:	
+  time to learn 1 sample = 0.48317494532477ms	
+  time to learn all 1473854 samples = 712129.3258667ms	
+================================	
+ConfusionMatrix:
+[[  330776   11057   12094   14256]   89.840% 	[class: 1]
+ [   10918  349504    2941    4911]   94.903% 	[class: 2]
+ [   15521    4967  342055    4941]   93.080% 	[class: 3]
+ [   15599    7124    4528  342662]]  92.633% 	[class: 4]
+ + average row correct: 92.614182829857% 
+ + average rowUcol correct (VOC measure): 86.316360533237% 
+ + global correct: 92.614125958202%
+Saving current network state...	
+Saved.	
+================================	
+Epoch 42:	
+  time to learn 1 sample = 0.48309616557588ms	
+  time to learn all 1473854 samples = 712013.21601868ms	
+================================	
+ConfusionMatrix:
+[[  329274   11560   12403   14946]   89.432% 	[class: 1]
+ [   11401  347838    4003    5032]   94.451% 	[class: 2]
+ [   13625    5536  343940    4383]   93.593% 	[class: 3]
+ [   16674    7048    4465  341726]]  92.380% 	[class: 4]
+ + average row correct: 92.464080452919% 
+ + average rowUcol correct (VOC measure): 86.052207648754% 
+ + global correct: 92.463568304595%
+Saving current network state...	
+Saved.	
+================================	
+Epoch 43:	
+  time to learn 1 sample = 0.48415748441176ms	
+  time to learn all 1473854 samples = 713577.44503021ms	
+================================	
+ConfusionMatrix:
+[[  329199   11306   12300   15378]   89.412% 	[class: 1]
+ [   11069  347965    3835    5405]   94.485% 	[class: 2]
+ [   13556    5632  343670    4626]   93.520% 	[class: 3]
+ [   16082    6687    4466  342678]]  92.637% 	[class: 4]
+ + average row correct: 92.513579130173% 
+ + average rowUcol correct (VOC measure): 86.134617030621% 
+ + global correct: 92.513369709618%
+Saving current network state...	
+Saved.	
+================================	
+Epoch 44:	
+  time to learn 1 sample = 0.48475167427804ms	
+  time to learn all 1473854 samples = 714453.19414139ms	
+================================	
+ConfusionMatrix:
+[[  330764   10914   11764   14741]   89.837% 	[class: 1]
+ [   11428  348165    3667    5014]   94.540% 	[class: 2]
+ [   13097    5266  344764    4357]   93.817% 	[class: 3]
+ [   16135    6385    4262  343131]]  92.760% 	[class: 4]
+ + average row correct: 92.738462984562% 
+ + average rowUcol correct (VOC measure): 86.52825653553% 
+ + global correct: 92.738086676157%
+Saving current network state...	
+Saved.	
+================================	
+Epoch 45:	
+  time to learn 1 sample = 0.48084514667826ms	
+  time to learn all 1473854 samples = 708695.54281235ms	
+================================	
+ConfusionMatrix:
+[[  331284   10979   11420   14500]   89.978% 	[class: 1]
+ [   10352  349459    3608    4855]   94.891% 	[class: 2]
+ [   12591    5645  344846    4402]   93.840% 	[class: 3]
+ [   15634    6662    4381  343236]]  92.788% 	[class: 4]
+ + average row correct: 92.874285578728% 
+ + average rowUcol correct (VOC measure): 86.753341555595% 
+ + global correct: 92.873853176773%
+Saving current network state...	
+Saved.	
+================================	
+Epoch 46:	
+  time to learn 1 sample = 0.48085311783002ms	
+  time to learn all 1473854 samples = 708707.29112625ms	
+================================	
+ConfusionMatrix:
+[[  331553   11213   11569   13848]   90.051% 	[class: 1]
+ [   10092  349658    3760    4764]   94.945% 	[class: 2]
+ [   12127    5474  345703    4180]   94.073% 	[class: 3]
+ [   14973    6565    4317  344058]]  93.011% 	[class: 4]
+ + average row correct: 93.019917607307% 
+ + average rowUcol correct (VOC measure): 87.001734972% 
+ + global correct: 93.019525678934%
+Saving current network state...	
+Saved.	
+================================	
+Epoch 47:	
+  time to learn 1 sample = 0.48334590870345ms	
+  time to learn all 1473854 samples = 712381.30092621ms	
+================================	
+ConfusionMatrix:
+[[  330485   11274   11910   14514]   89.761% 	[class: 1]
+ [   10918  348251    4043    5062]   94.563% 	[class: 2]
+ [   12548    5754  344713    4469]   93.804% 	[class: 3]
+ [   15388    6936    4429  343160]]  92.768% 	[class: 4]
+ + average row correct: 92.723844945431% 
+ + average rowUcol correct (VOC measure): 86.489620804787% 
+ + global correct: 92.723499071143%
+Saving current network state...	
+Saved.	
+================================	
+Epoch 48:	
+  time to learn 1 sample = 0.47936542277247ms	
+  time to learn all 1473854 samples = 706514.6458149ms	
+================================	
+ConfusionMatrix:
+[[  332132   11052   11250   13749]   90.208% 	[class: 1]
+ [   10385  349079    3852    4958]   94.788% 	[class: 2]
+ [   11510    5516  346185    4273]   94.204% 	[class: 3]
+ [   14341    6500    4175  344897]]  93.237% 	[class: 4]
+ + average row correct: 93.109419941902% 
+ + average rowUcol correct (VOC measure): 87.154732644558% 
+ + global correct: 93.109154638112%
+Saving current network state...	
+Saved.	
+================================	
+Epoch 49:	
+  time to learn 1 sample = 0.49150276147717ms	
+  time to learn all 1473854 samples = 724403.31101418ms	
+================================	
+ConfusionMatrix:
+[[  333030   10751   10884   13518]   90.452% 	[class: 1]
+ [   10900  348687    3853    4834]   94.681% 	[class: 2]
+ [   11419    5539  346292    4234]   94.233% 	[class: 3]
+ [   14422    6424    4044  345023]]  93.271% 	[class: 4]
+ + average row correct: 93.159580230713% 
+ + average rowUcol correct (VOC measure): 87.245410680771% 
+ + global correct: 93.159295289764%
+Saving current network state...	
+Saved.	
+================================	
+Epoch 50:	
+  time to learn 1 sample = 0.48270840534299ms	
+  time to learn all 1473854 samples = 711441.71404839ms	
+================================	
+ConfusionMatrix:
+[[  333127   10634   10742   13680]   90.479% 	[class: 1]
+ [   10472  349393    3531    4878]   94.873% 	[class: 2]
+ [   11485    5615  346095    4289]   94.180% 	[class: 3]
+ [   14149    6413    4035  345316]]  93.351% 	[class: 4]
+ + average row correct: 93.220493197441% 
+ + average rowUcol correct (VOC measure): 87.350575625896% 
+ + global correct: 93.220291833519%
+Saving current network state...	
+Saved.	
+================================	
+Epoch 51:	
+  time to learn 1 sample = 0.48816921290291ms	
+  time to learn all 1473854 samples = 719490.1471138ms	
+================================	
+ConfusionMatrix:
+[[  332862   11255   10813   13253]   90.407% 	[class: 1]
+ [    9731  349845    3870    4828]   94.996% 	[class: 2]
+ [   10957    5796  346547    4184]   94.303% 	[class: 3]
+ [   13907    6795    4094  345117]]  93.297% 	[class: 4]
+ + average row correct: 93.250481784344% 
+ + average rowUcol correct (VOC measure): 87.394714355469% 
+ + global correct: 93.250145536804%
+Saving current network state...	
+Saved.	
+================================	
+Epoch 52:	
+  time to learn 1 sample = 0.48710316695856ms	
+  time to learn all 1473854 samples = 717918.95103455ms	
+================================	
+ConfusionMatrix:
+[[  333341   11294   10520   13028]   90.537% 	[class: 1]
+ [   10227  349345    3986    4716]   94.860% 	[class: 2]
+ [   10874    5917  346555    4138]   94.305% 	[class: 3]
+ [   13451    6507    3961  345994]]  93.534% 	[class: 4]
+ + average row correct: 93.308880925179% 
+ + average rowUcol correct (VOC measure): 87.498049438% 
+ + global correct: 93.308767354161%
+Saving current network state...	
+Saved.	
+================================	
+Epoch 53:	
+  time to learn 1 sample = 0.48092982957006ms	
+  time to learn all 1473854 samples = 708820.35303116ms	
+================================	
+ConfusionMatrix:
+[[  334060   10948   10382   12793]   90.732% 	[class: 1]
+ [   10058  349820    3626    4770]   94.989% 	[class: 2]
+ [   10541    5701  347219    4023]   94.485% 	[class: 3]
+ [   12970    6641    3799  346503]]  93.671% 	[class: 4]
+ + average row correct: 93.469516932964% 
+ + average rowUcol correct (VOC measure): 87.778833508492% 
+ + global correct: 93.469366707964%
+Saving current network state...	
+Saved.	
+================================	
+Epoch 54:	
+  time to learn 1 sample = 0.4837834798995ms	
+  time to learn all 1473854 samples = 713026.2169838ms	
+================================	
+ConfusionMatrix:
+[[  334246   11101    9998   12838]   90.783% 	[class: 1]
+ [   10375  349357    3609    4933]   94.863% 	[class: 2]
+ [   10242    5719  347594    3929]   94.588% 	[class: 3]
+ [   13077    6618    3758  346460]]  93.660% 	[class: 4]
+ + average row correct: 93.473321199417% 
+ + average rowUcol correct (VOC measure): 87.787000834942% 
+ + global correct: 93.473098420875%
+Saving current network state...	
+Saved.	
+================================	
+Epoch 55:	
+  time to learn 1 sample = 0.48250427099884ms	
+  time to learn all 1473854 samples = 711140.84982872ms	
+================================	
+ConfusionMatrix:
+[[  333411   12117   10230   12425]   90.556% 	[class: 1]
+ [    9715  350039    3979    4541]   95.049% 	[class: 2]
+ [    9901    5859  347782    3942]   94.639% 	[class: 3]
+ [   12731    6779    3792  346611]]  93.701% 	[class: 4]
+ + average row correct: 93.485915660858% 
+ + average rowUcol correct (VOC measure): 87.802894413471% 
+ + global correct: 93.485718395445%
+Saving current network state...	
+Saved.	
+================================	
+Epoch 56:	
+  time to learn 1 sample = 0.4810652276936ms	
+  time to learn all 1473854 samples = 709019.91009712ms	
+================================	
+ConfusionMatrix:
+[[  330524   12459   11021   14179]   89.772% 	[class: 1]
+ [   11287  347445    4065    5477]   94.344% 	[class: 2]
+ [   12543    7337  344832    2772]   93.836% 	[class: 3]
+ [   15123    8625    2771  343394]]  92.831% 	[class: 4]
+ + average row correct: 92.695689201355% 
+ + average rowUcol correct (VOC measure): 86.444871127605% 
+ + global correct: 92.695409450325%
+Saving current network state...	
+Saved.	
+================================	
+Epoch 57:	
+  time to learn 1 sample = 0.48743716478492ms	
+  time to learn all 1473854 samples = 718411.21506691ms	
+================================	
+ConfusionMatrix:
+[[  327506   13823   11987   14867]   88.952% 	[class: 1]
+ [   10848  344892    5302    7232]   93.651% 	[class: 2]
+ [   13142    8476  343630    2236]   93.509% 	[class: 3]
+ [   15510    9908    2263  342232]]  92.517% 	[class: 4]
+ + average row correct: 92.157152295113% 
+ + average rowUcol correct (VOC measure): 85.511058568954% 
+ + global correct: 92.157025051328%
+Saving current network state...	
+Saved.	
+================================	
+Epoch 58:	
+  time to learn 1 sample = 0.48099205085104ms	
+  time to learn all 1473854 samples = 708912.05811501ms	
+================================	
+ConfusionMatrix:
+[[  324979   14203   12944   16057]   88.266% 	[class: 1]
+ [   11022  343797    5875    7580]   93.354% 	[class: 2]
+ [   12562    8419  344064    2439]   93.627% 	[class: 3]
+ [   15232    9781    2520  342380]]  92.557% 	[class: 4]
+ + average row correct: 91.950759291649% 
+ + average rowUcol correct (VOC measure): 85.150557756424% 
+ + global correct: 91.950763101366%
+Saving current network state...	
+Saved.	
+================================	
+Epoch 59:	
+  time to learn 1 sample = 0.48106100335199ms	
+  time to learn all 1473854 samples = 709013.68403435ms	
+================================	
+ConfusionMatrix:
+[[  322245   14800   13504   17634]   87.523% 	[class: 1]
+ [   11244  342266    6303    8461]   92.938% 	[class: 2]
+ [   13127    9462  342191    2704]   93.117% 	[class: 3]
+ [   15528   10424    2345  341616]]  92.350% 	[class: 4]
+ + average row correct: 91.48213416338% 
+ + average rowUcol correct (VOC measure): 84.35171097517% 
+ + global correct: 91.48246705576%
+Saving current network state...	
+Saved.	
+slurmstepd: error: *** JOB 2547390 ON node103 CANCELLED AT 2017-04-28T11:02:06 DUE TO TIME LIMIT ***
