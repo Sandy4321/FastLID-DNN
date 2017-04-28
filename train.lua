@@ -55,18 +55,8 @@ if opt.noOOS then
 end
 label2maxframes:floor()
 
--- Load the training dataset
 local feature_dim = 39
 local context_frames = 10
-local readCfg = {
-    features_file = features_file,
-    lang2label = lang2label,
-    label2maxframes = label2maxframes,
-    include_utts = true,
-    gpu = opt.gpu
-}
-local dataset, label2uttcount = lre03DatasetReader.read(readCfg)
-
 local optimState = {}
 if opt.network == '' then
     print("Setting up neural network...")
@@ -77,10 +67,10 @@ if opt.network == '' then
     else
         outputs = 4       -- number of classes (three languages + OOS)
     end
-    local hidden_units_1 = 2560
-    local hidden_units_2 = 2560
-    --local hidden_units_3 = 1024
-    --local hidden_units_4 = 1024
+    local hidden_units_1 = 2048
+    local hidden_units_2 = 1024
+    local hidden_units_3 = 512
+    local hidden_units_4 = 256
     local dropout_prob = 0.5
 
     model = nn.Sequential();  -- make a multi-layer perceptron
@@ -89,38 +79,38 @@ if opt.network == '' then
     model:add(nn.Linear(inputs, hidden_units_1))
     model:add(nn.Add(hidden_units_1, true))
     model:add(nn.ReLU())
-    if opt.dropout then
-        model:add(nn.Dropout(dropout_prob))
-    end
+    --if opt.dropout then
+    --    model:add(nn.Dropout(dropout_prob))
+    --end
 
     -- Second hidden layer with constant bias term and ReLU activation as well
     model:add(nn.Linear(hidden_units_1, hidden_units_2))
     model:add(nn.Add(hidden_units_2, true))
     model:add(nn.ReLU())
+    --if opt.dropout then
+    --    model:add(nn.Dropout(dropout_prob))
+    --end
+    
+    -- Third hidden layer with constant bias term and ReLU activation as well
+    model:add(nn.Linear(hidden_units_2, hidden_units_3))
+    model:add(nn.Add(hidden_units_3, true))
+    model:add(nn.ReLU())
     if opt.dropout then
         model:add(nn.Dropout(dropout_prob))
     end
-    
-    -- Third hidden layer with constant bias term and ReLU activation as well
-    --model:add(nn.Linear(hidden_units_2, hidden_units_3))
-    --model:add(nn.Add(hidden_units_3, true))
-    --model:add(nn.ReLU())
-    --if opt.dropout then
-    --    model:add(nn.Dropout(dropout_prob))
-    --end
 
     -- Fourth hidden layer with constant bias term and ReLU activation as well
-    --model:add(nn.Linear(hidden_units_3, hidden_units_4))
-    --model:add(nn.Add(hidden_units_4, true))
-    --model:add(nn.ReLU())
-    --if opt.dropout then
-    --    model:add(nn.Dropout(dropout_prob))
-    --end
+    model:add(nn.Linear(hidden_units_3, hidden_units_4))
+    model:add(nn.Add(hidden_units_4, true))
+    model:add(nn.ReLU())
+    if opt.dropout then
+        model:add(nn.Dropout(dropout_prob))
+    end
 
     -- Output layer with softmax layer
-    --model:add(nn.Linear(hidden_units_4, outputs))
+    model:add(nn.Linear(hidden_units_4, outputs))
     --model:add(nn.Linear(hidden_units_3, outputs))
-    model:add(nn.Linear(hidden_units_2, outputs))
+    --model:add(nn.Linear(hidden_units_2, outputs))
     model:add(nn.LogSoftMax())
     print("Done setting up neural network.")
 else
@@ -128,10 +118,10 @@ else
     model = torch.load(opt.network)
     print("Loaded existing neural network " .. opt.network)
     
-    print("Loading existing neural network " .. opt.network .. "...")
+    print("Loading existing optimizer state " .. opt.network .. "...")
     local oldOptimStateFilename = opt.network .. "_optimState"
     optimState = torch.load(oldOptimStateFilename)
-    print("Loaded existing neural network " .. opt.network)
+    print("Loaded existing optimizer state " .. opt.network)
 end
 
 -- Set up for training (i.e. activate Dropout)
@@ -147,6 +137,16 @@ if opt.gpu then
     print("Convert network to CUDA")
     model = model:cuda()
 end
+
+-- Load the training dataset
+local readCfg = {
+    features_file = features_file,
+    lang2label = lang2label,
+    label2maxframes = label2maxframes,
+    include_utts = true,
+    gpu = opt.gpu
+}
+local dataset, label2uttcount = lre03DatasetReader.read(readCfg)
 
 print("Training neural network using minibatch size " .. opt.batchSize .. "...")
 -- Use class negative log likelihood (NLL) criterion and stochastic gradient descent to train network
@@ -293,7 +293,7 @@ for epoch = 1,opt.epochs do
     -- Save the optimizer state so we can pick up from a checkpoint later!
     print("Saving current optimizer state...")
     local optimStateFilename = opt.netFilename .. "_optimState"
-    torch.save(opt.optimStateFilename, optimState)
+    torch.save(optimStateFilename, optimState)
     print("Saved.")
 end
 print("Done training neural network.")
