@@ -39,19 +39,6 @@ label2maxframes[lang2label["english"]] = total_frames
 label2maxframes[lang2label["german"]] = total_frames
 label2maxframes[lang2label["mandarin"]] = total_frames
 
--- Load the testing dataset
-local feature_dim = 39  -- 13 MFCCs, 13 delta MFCCS, 13 delta-delta MFCCs
-local context_frames = 10
-local max_utterances = 1174
-local readCfg = {
-    features_file = features_file,
-    lang2label = lang2label,
-    label2maxframes = label2maxframes,
-    include_utts = true,
-    gpu = opt.gpu
-}
-local dataset, label2uttcount = lre03DatasetReader.read(readCfg)
-
 print("Loading neural network " .. opt.network .. "...")
 model = torch.load(opt.network)
 print("Loaded neural network " .. opt.network)
@@ -66,6 +53,19 @@ if opt.gpu then
     print("Convert network to CUDA")
     model = model:cuda()
 end
+
+-- Load the testing dataset
+local feature_dim = 39  -- 13 MFCCs, 13 delta MFCCS, 13 delta-delta MFCCs
+local context_frames = 10
+local max_utterances = 1174
+local readCfg = {
+    features_file = features_file,
+    lang2label = lang2label,
+    label2maxframes = label2maxframes,
+    include_utts = true,
+    gpu = opt.gpu
+}
+local dataset, label2uttcount = lre03DatasetReader.read(readCfg)
 
 -- Set up confusion matrix
 if opt.noOOS then
@@ -90,6 +90,11 @@ if opt.gpu then
     print("Convert input tensor to CUDA")
     input = input:cuda()
 end
+
+local utterance_to_classification = "0009"
+local frame_classifications = {}         -- Show what labels were given to frames for a given utterance
+local frame_classification_count = 0
+
 for i=1,dataset:size() do
     local data = dataset[i]
     local features_tensor = data[1]
@@ -146,7 +151,15 @@ for i=1,dataset:size() do
         utterance_output_avgs[utterance_count] = new_avg
         utterance_frame_counts[utterance_count] = utterance_frame_counts[utterance_count] + 1
     end
+        
+    if current_utterance == utterance_to_classification then
+        frame_classification_count = frame_classification_count + 1
+        frame_classifications[frame_classification_count] = classification
+    end
 end
+
+print("Frame classifications for utterance " .. utterance_to_classification .. " (English):")
+print(frame_classifications)
 
 -- Print time statistics for frame-level testing
 local end_time = sys.clock()

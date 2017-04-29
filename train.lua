@@ -56,7 +56,8 @@ end
 label2maxframes:floor()
 
 local feature_dim = 39
-local context_frames = 10
+--local context_frames = 10
+local context_frames = 20
 local optimState = {}
 if opt.network == '' then
     print("Setting up neural network...")
