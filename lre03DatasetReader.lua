@@ -22,6 +22,7 @@ function lre03DatasetReader.read(cfg)
 
     local languages = {"outofset", "english", "german", "mandarin"}
     local label2framecount = torch.zeros(4)      -- Assumes max language set size is 3 (see paper)
+    local label2uttcount = torch.zeros(4)      -- Assumes max language set size is 3 (see paper)
 
     local feature_dim = 39  -- 13 MFCCs, 13 delta MFCCS, 13 delta-delta MFCCs
 
@@ -41,6 +42,7 @@ function lre03DatasetReader.read(cfg)
             if label2framecount[label] < cfg.label2maxframes[label] then
                 current_utterance = utt
                 utterances_used = utterances_used + 1
+                label2uttcount[label] = label2uttcount[label] + 1
             end
         end
 
@@ -55,6 +57,9 @@ function lre03DatasetReader.read(cfg)
             end
         end
         if bail then
+            -- Undo the utterance we just added
+            utterances_used = utterances_used - 1
+            label2uttcount[label] = label2uttcount[label] - 1
             break
         end
 
@@ -85,6 +90,8 @@ function lre03DatasetReader.read(cfg)
     end
     function dataset:size() return dataset_size end
     print("Done setting up dataset with " .. dataset:size() .. " datapoints across " .. utterances_used .. " utterances.")
+    print("Utterances per language:")
+    print(label2uttcount)
     return dataset, label2framecount
 end
 

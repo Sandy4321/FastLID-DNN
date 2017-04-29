@@ -39,7 +39,7 @@ fi
 
 data=`pwd`/data
 data_train=$data/train_${utt_duration}
-#data_test=$data/test_${utt_duration}
+data_test=$data/test_${utt_duration}
 featdir=`pwd`/feats_${utt_duration}
 
 if [ $stage -le 1 ]; then
@@ -52,14 +52,12 @@ fi
 if [ $stage -le 2 ]; then
     echo "Making MFCCs..."
     # Now make MFCC features.
-    #for x in test train; do
-    #    steps/make_mfcc.sh --cmd "$train_cmd" --nj $NUM_JOBS --mfcc-config conf/mfcc.conf \
-    #        $data_${x} exp/make_feats/$x $featdir || exit 1;
-    #    steps/compute_cmvn_stats.sh $data_${x} exp/make_feats/$x $featdir || exit 1;
-    #done
     steps/make_mfcc.sh --cmd "$train_cmd" --nj $NUM_JOBS --mfcc-config conf/mfcc.conf \
         $data_train exp/make_feats/train $featdir || exit 1;
     steps/compute_cmvn_stats.sh $data_train exp/make_feats/train $featdir || exit 1;
+    steps/make_mfcc.sh --cmd "$train_cmd" --nj $NUM_JOBS --mfcc-config conf/mfcc.conf \
+        $data_test exp/make_feats/test $featdir || exit 1;
+    steps/compute_cmvn_stats.sh $data_test exp/make_feats/test $featdir || exit 1;
     echo "MFCCs complete!"
 fi
 
@@ -76,14 +74,14 @@ fi
 if [ $stage -le 4 ]; then
     echo "Making delta and delta-delta MFCCs..."
     add-deltas --delta-order=2 scp:$data_train/feats.scp ark,t:$featdir/features_train.ark
-    #add-deltas --delta-order=2 scp:$data_test/feats.scp ark,t:$featdir/features_test.ark
+    add-deltas --delta-order=2 scp:$data_test/feats.scp ark,t:$featdir/features_test.ark
     echo "Delta and delta-delta MFCCs complete!"
 fi
 
 if [ $stage -le 5 ]; then
     echo "Making labeled feature set..."
     python local/label_features.py $featdir/features_train.ark $data_train/utt2lang
-    #python local/label_features.py $featdir/features_test.ark $data_test/utt2lang
+    python local/label_features.py $featdir/features_test.ark $data_test/utt2lang
     echo "Labeled feature set complete!"
 fi
 

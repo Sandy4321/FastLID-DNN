@@ -36,13 +36,16 @@ if [ $utt_duration == "3" ]; then
     lre03_test_n=1174
 elif [ $utt_duration == "10" ]; then
     lre03_train_n=1502
+    lre03_test_n=1172
 elif [ $utt_duration == "30" ]; then
     lre03_train_n=1492
+    lre03_test_n=1147
 else
     echo "Unexpected utterance duration $utt_duration"
     exit 1
 fi
 echo "$lre03_train_n training utterances"
+echo "$lre03_test_n test utterances"
 
 # Set up training and test data
 find $lre03_train/${utt_duration} -name '*.sph' > $dir/train_${utt_duration}.flist
@@ -50,67 +53,42 @@ n=`cat $dir/train_${utt_duration}.flist | wc -l`
 [ $n -eq $lre03_train_n ] || echo "Unexpected number of training files $n versus $lre03_train_n"
 cp $lre03_train/${utt_duration}/seg_lang.ndx $dir/train_${utt_duration}_lang.ndx
 
-#find $lre03_test/${utt_duration} -name '*.sph' > $dir/test_${utt_duration}.flist
-#n=`cat $dir/test_${utt_duration}.flist | wc -l`
-#[ $n -eq $lre03_test_n ] || echo "Unexpected number of test files $n versus $lre03_test_n"
-#cp $lre03_test/${utt_duration}/seg_lang.ndx $dir/test_${utt_duration}_lang.ndx
+find $lre03_test/${utt_duration} -name '*.sph' > $dir/test_${utt_duration}.flist
+n=`cat $dir/test_${utt_duration}.flist | wc -l`
+[ $n -eq $lre03_test_n ] || echo "Unexpected number of test files $n versus $lre03_test_n"
+cp $lre03_test/${utt_duration}/seg_lang.ndx $dir/test_${utt_duration}_lang.ndx
 
 # Mark the languages we care about --- all others are out-of-set
 languages=( english german mandarin )
 
 
-# Set up training files
+# Set up training and test files
 
 
-# get scp file that has utterance-ids and maps to the sphere file.
-cat $dir/train_${utt_duration}.flist | perl -ane 'm|/(..)/([0-9a-z]{4})\.sph| || die "bad line $_"; print "$2 $_"; ' \
- | sort > $dir/train_${utt_duration}_sph.scp
-# turn it into one that has a valid .wav format in the modern sense (i.e. RIFF format, not sphere).
-# This file goes into its final location
-mkdir -p $data/train_${utt_duration}
-awk '{printf("%s '$sph2pipe' -p -f wav %s |\n", $1, $2);}' < $dir/train_${utt_duration}_sph.scp > data/train_${utt_duration}/wav.scp
+for x in train test; do
+    # get scp file that has utterance-ids and maps to the sphere file.
+    cat $dir/${x}_${utt_duration}.flist | perl -ane 'm|/(..)/([0-9a-z]{4})\.sph| || die "bad line $_"; print "$2 $_"; ' \
+     | sort > $dir/${x}_${utt_duration}_sph.scp
+    # turn it into one that has a valid .wav format in the modern sense (i.e. RIFF format, not sphere).
+    # This file goes into its final location
+    mkdir -p $data/${x}_${utt_duration}
+    awk '{printf("%s '$sph2pipe' -p -f wav %s |\n", $1, $2);}' < $dir/${x}_${utt_duration}_sph.scp > data/${x}_${utt_duration}/wav.scp
 
-# now get the "utt2lang" file that says, for each utterance, the language or out-of-set
-printf "%s\n" "${languages[@]}" > $data/train_${utt_duration}/languages
-python $local/utt2lang.py $data/train_${utt_duration} $dir/train_${utt_duration}_lang.ndx
-sort $data/train_${utt_duration}/utt2lang_unsorted > $data/train_${utt_duration}/utt2lang
+    # now get the "utt2lang" file that says, for each utterance, the language or out-of-set
+    printf "%s\n" "${languages[@]}" > $data/${x}_${utt_duration}/languages
+    python $local/utt2lang.py $data/${x}_${utt_duration} $dir/${x}_${utt_duration}_lang.ndx
+    sort $data/${x}_${utt_duration}/utt2lang_unsorted > $data/${x}_${utt_duration}/utt2lang
 
-# create the file that maps from language to utterance-list.
-python $local/utt2lang_to_lang2utt.py $data/train_${utt_duration}
+    # create the file that maps from language to utterance-list.
+    python $local/utt2lang_to_lang2utt.py $data/${x}_${utt_duration}
 
-# Now to create files required for built-in Kaldi stuff
-# get the "utt2spk" file that says, for each utterance, the speaker name.
-# because LRE 2003 does not have speaker names, we simply map utterance ids to speakers here.
-python $local/utt2spk_dumb.py $data/train_${utt_duration}
-# create the file that maps from "speaker" to utterance-list.
-utils/utt2spk_to_spk2utt.pl <$data/train_${utt_duration}/utt2spk >$data/train_${utt_duration}/spk2utt
-
-
-# Set up testing files
-
-
-# get scp file that has utterance-ids and maps to the sphere file.
-#cat $dir/test_${utt_duration}.flist | perl -ane 'm|/(..)/([0-9a-z]{4})\.sph| || die "bad line $_"; print "$2 $_"; ' \
-# | sort > $dir/test_${utt_duration}_sph.scp
-# turn it into one that has a valid .wav format in the modern sense (i.e. RIFF format, not sphere).
-# This file goes into its final location
-#mkdir -p $data/test_${utt_duration}
-#awk '{printf("%s '$sph2pipe' -p -f wav %s |\n", $1, $2);}' < $dir/test_${utt_duration}_sph.scp > data/test_${utt_duration}/wav.scp
-
-# now get the "utt2lang" file that says, for each utterance, the language or out-of-set
-#printf "%s\n" "${languages[@]}" > $data/test_${utt_duration}/languages
-#python $local/utt2lang.py $data/test_${utt_duration} $dir/test_${utt_duration}_lang.ndx
-#sort $data/test_${utt_duration}/utt2lang_unsorted > $data/test_${utt_duration}/utt2lang
-
-# create the file that maps from language to utterance-list.
-#python $local/utt2lang_to_lang2utt.py $data/test_${utt_duration}
-
-# Now to create files required for built-in Kaldi stuff
-# get the "utt2spk" file that says, for each utterance, the speaker name.
-# because LRE 2003 does not have speaker names, we simply map utterance ids to speakers here.
-#python $local/utt2spk_dumb.py $data/test_${utt_duration}
-# create the file that maps from "speaker" to utterance-list.
-#utils/utt2spk_to_spk2utt.pl <$data/test_${utt_duration}/utt2spk >$data/test_${utt_duration}/spk2utt
+    # Now to create files required for built-in Kaldi stuff
+    # get the "utt2spk" file that says, for each utterance, the speaker name.
+    # because LRE 2003 does not have speaker names, we simply map utterance ids to speakers here.
+    python $local/utt2spk_dumb.py $data/${x}_${utt_duration}
+    # create the file that maps from "speaker" to utterance-list.
+    utils/utt2spk_to_spk2utt.pl <$data/${x}_${utt_duration}/utt2spk >$data/${x}_${utt_duration}/spk2utt
+done
 
 # All done!
 echo "Data preparation succeeded"

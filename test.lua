@@ -65,7 +65,7 @@ local readCfg = {
     include_utts = true,
     gpu = opt.gpu
 }
-local dataset, label2uttcount = lre03DatasetReader.read(readCfg)
+local dataset, label2framecount = lre03DatasetReader.read(readCfg)
 
 -- Set up confusion matrix
 if opt.noOOS then
@@ -90,10 +90,6 @@ if opt.gpu then
     print("Convert input tensor to CUDA")
     input = input:cuda()
 end
-
-local utterance_to_classification = "0009"
-local frame_classifications = {}         -- Show what labels were given to frames for a given utterance
-local frame_classification_count = 0
 
 for i=1,dataset:size() do
     local data = dataset[i]
@@ -151,15 +147,7 @@ for i=1,dataset:size() do
         utterance_output_avgs[utterance_count] = new_avg
         utterance_frame_counts[utterance_count] = utterance_frame_counts[utterance_count] + 1
     end
-        
-    if current_utterance == utterance_to_classification then
-        frame_classification_count = frame_classification_count + 1
-        frame_classifications[frame_classification_count] = classification
-    end
 end
-
-print("Frame classifications for utterance " .. utterance_to_classification .. " (English):")
-print(frame_classifications)
 
 -- Print time statistics for frame-level testing
 local end_time = sys.clock()

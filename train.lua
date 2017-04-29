@@ -33,7 +33,7 @@ local features_file="/pool001/atitus/FastLID-DNN/data_prep/feats/features_train_
 local lang2label = {outofset = 1, english = 2, german = 3, mandarin = 4}
 
 -- Only use full dataset if we say so
-local total_frames = 6850633
+local total_frames = 6381550
 local label2maxframes = torch.zeros(4)
 if opt.full then
     -- Force all data to be used
@@ -43,7 +43,7 @@ if opt.full then
     label2maxframes[lang2label["mandarin"]] = total_frames
 else
     -- Balance the data
-    local min_frames = 367484   -- Count for German, the minimum in this label set
+    local min_frames = 342643   -- Count for German, the minimum in this label set
     label2maxframes[lang2label["outofset"]] = min_frames
     label2maxframes[lang2label["english"]] = min_frames
     label2maxframes[lang2label["german"]] = min_frames
@@ -166,12 +166,12 @@ local readCfg = {
     include_utts = true,
     gpu = opt.gpu
 }
-local dataset, label2uttcount = lre03DatasetReader.read(readCfg)
+local dataset, label2framecount = lre03DatasetReader.read(readCfg)
 
 print("Training neural network using minibatch size " .. opt.batchSize .. "...")
 -- Use class negative log likelihood (NLL) criterion and stochastic gradient descent to train network
 -- Weights data to account for class imbalance in NIST 2003 dataset
--- local weights = torch.cdiv(torch.ones(label2uttcount:size(1)), label2uttcount)
+-- local weights = torch.cdiv(torch.ones(label2framecount:size(1)), label2framecount)
 -- if opt.gpu then
 --     print("Convert weights to CUDA")
 --     weights = weights:cuda()
