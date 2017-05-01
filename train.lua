@@ -15,6 +15,7 @@ local opt = lapp[[
    -g,--gpu                                 train on GPU
    --netFilename      (string)              name of file to save network to
    --noOOS                                  do not train for Out-of-Set utterances
+   --earlyStopping                          perform generalization loss-based early stopping
    -t,--threads       (default 4)           number of threads
 ]]
 
@@ -243,7 +244,7 @@ local nag_config = {
 -- Uses Generalization Loss as discussed in
 -- http://page.mi.fu-berlin.de/prechelt/Biblio/stop_tricks1997.pdf
 local best_validation_fer = 1.0
-local gl_threshold = 3.0        -- Hand-tuned
+local gl_threshold = 10.0        -- Hand-tuned
 
 -- Mini-batch training with help of
 -- https://github.com/torch/demos/blob/master/train-a-digit-classifier/train-on-mnist.lua
@@ -475,16 +476,24 @@ for epoch = 1,opt.epochs do
     validate_confusion:zero()
     print("Done validating neural network.")
 
-    -- Check if we should stop early
-    print("Best validation FER so far " .. best_validation_fer .. ", current FER " .. current_validation_fer)
-    if current_validation_fer < best_validation_fer then
-        best_validation_fer = current_validation_fer
-    end
-    local generalization_loss = 100.0 * ((current_validation_fer / best_validation_fer) - 1)
-    -- TODO: actually stop early instead of just logging it
+    if opt.earlyStopping then
+        -- Check if we should stop early
+        print("Best validation FER so far " .. best_validation_fer .. ", current FER " .. current_validation_fer)
+        if current_validation_fer < best_validation_fer then
+            best_validation_fer = current_validation_fer
+        end
+        local generalization_loss = 100.0 * ((current_validation_fer / best_validation_fer) - 1)
 
-    print("Generalization loss:")
-    print(generalization_loss)
+        print("Generalization loss:")
+        print(generalization_loss)
+
+        if generalization_loss > gl_threshold then
+            print("============================")
+            print("STOPPING EARLY")
+            print("============================")
+            break
+        end 
+    end
 
     -- Save the network for future training or testing
     print("Saving current network state...")
