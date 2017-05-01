@@ -143,11 +143,13 @@ local lang2label = {outofset = 1, english = 2, german = 3, mandarin = 4}
 
 -- Load the validation dataset
 print("Loading validation dataset...")
-local validate_file="/pool001/atitus/FastLID-DNN/data_prep/feats/features_validate_labeled"
+--local validate_file="/pool001/atitus/FastLID-DNN/data_prep/feats/features_validate_labeled"
+local validate_file="/pool001/atitus/FastLID-DNN/data_prep/feats/features_evaluate_labeled"
 
 -- Balance the data
 local label2maxframes = torch.zeros(4)
-local min_frames = 24841        -- Count for German, the minimum in this label set
+--local min_frames = 24841        -- Count for German, the minimum in this label set
+local min_frames = 23507        -- Count for German, the minimum in this label set
 label2maxframes[lang2label["outofset"]] = min_frames
 label2maxframes[lang2label["english"]] = min_frames
 label2maxframes[lang2label["german"]] = min_frames
@@ -445,7 +447,8 @@ for epoch = 1,opt.epochs do
     local start_time = sys.clock()
 
     local correct_utterances = 0
-    local max_utterances = 320  -- Total in validation set
+    --local max_utterances = 320  -- Total in validation set
+    local max_utterances = 328
     for i=1,max_utterances do
         -- Test whole utterance
         local label = utterance_labels[i]
