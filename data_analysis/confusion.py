@@ -4,16 +4,18 @@ import pandas as pd
 import seaborn as sn
 import sys
 
-if len(sys.argv) != 2:
-    print "Usage: python confusion.py <log (Slurm) file>"
+if len(sys.argv) != 3:
+    print "Usage: python confusion.py <log (Slurm) file> <# classes>"
     sys.exit(1)
 
 log_filename = sys.argv[1]
+num_classes = int(sys.argv[2])
 
 # Read in last confusion matrix and plot it
-labels = ["oos", "english", "german", "mandarin"]
-#labels = ["english", "german", "mandarin"]
-num_classes = len(labels)
+count2labels = {2: ["out", "in"],
+                3: ["english", "german", "mandarin"],
+                4: ["oos", "english", "german", "mandarin"]}
+labels = count2labels[num_classes]
 conf_mat = np.zeros((num_classes, num_classes), np.float64)
 current_row = -1    # Indicates that we are not currently reading
 with open(log_filename, 'r') as log:
