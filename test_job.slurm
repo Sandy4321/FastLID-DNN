@@ -16,11 +16,9 @@ module load engaging/lua/5.3.2
 module load engaging/torch/20160128
 
 echo "TESTING DNN MODEL"
-optim=Adam
-epochs=500
-batchsize=128
-network=/pool001/atitus/FastLID-DNN/models/2k_2k_1k_1k_512_256_${optim}_e${epochs}_b${batchsize}_dropout
+model_name=1k_1k_1k_1k_Adam_e100_b128_es
+network=/pool001/atitus/FastLID-DNN/models/${model_name}
 threads=16
-echo "TESTING NETWORK WITH FILENAME ${network}"
+echo "TESTING NETWORK WITH MODEL NAME ${model_name}"
 th test.lua --network="${network}" --gpu -t $threads
 echo "COMPLETED TESTING"

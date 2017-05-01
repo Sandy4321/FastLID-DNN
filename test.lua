@@ -56,7 +56,7 @@ end
 
 -- Load the testing dataset
 local feature_dim = 39  -- 13 MFCCs, 13 delta MFCCS, 13 delta-delta MFCCs
-local context_frames = 10
+local context_frames = 20
 local max_utterances = 1174
 local readCfg = {
     features_file = features_file,
@@ -153,11 +153,12 @@ end
 local end_time = sys.clock()
 local elapsed_time = end_time - start_time
 local time_per_sample = elapsed_time / dataset:size()
+local fer = 1.0 - (correct_frames / dataset:size())
 print("================================")
 print("Frame-Level Testing:")
 print("  time to test 1 sample = " .. (time_per_sample * 1000) .. "ms")
 print("  time to test all " .. dataset:size() .. " samples = " .. (elapsed_time * 1000) .. "ms")
-print("  FER: " .. (correct_frames / dataset:size()))
+print("  FER: " .. fer)
 print("================================")
 
 -- Print confusion matrix and reset
@@ -184,11 +185,12 @@ end
 local end_time = sys.clock()
 local elapsed_time = end_time - start_time
 local time_per_utterance = elapsed_time / max_utterances
+local uer = 1.0 - (correct_utterances / max_utterances)
 print("================================")
 print("Utterance-Level Testing:")
 print("  time to test 1 utterance = " .. (time_per_utterance * 1000) .. "ms")
 print("  time to test all " .. max_utterances .. " utterances = " .. (elapsed_time * 1000) .. "ms")
-print("  UER: " .. (correct_utterances / max_utterances))
+print("  UER: " .. uer)
 print("================================")
 
 -- Print confusion matrix and reset
