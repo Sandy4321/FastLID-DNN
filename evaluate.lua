@@ -29,7 +29,9 @@ local lang2label = {outofset = 1, english = 2, german = 3, mandarin = 4}
 
 -- Force all data to be used
 --local total_frames = 335583
-local total_frames = 23507
+
+-- Balance data
+local total_frames = 26326
 local label2maxframes = torch.zeros(4)
 label2maxframes[lang2label["outofset"]] = total_frames
 if opt.noOOS then
@@ -58,8 +60,7 @@ end
 -- Load the evaluation dataset
 local feature_dim = 39  -- 13 MFCCs, 13 delta MFCCS, 13 delta-delta MFCCs
 local context_frames = 20
---local max_utterances = 1174
-local max_utterances = 328
+local max_utterances = 2000     -- Force it to break for now
 local readCfg = {
     features_file = features_file,
     lang2label = lang2label,
