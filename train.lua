@@ -48,7 +48,10 @@ if opt.network == '' then
     local hidden_units_4 = 1024
     --local hidden_units_5 = 512
     --local hidden_units_6 = 256
-    local dropout_prob = 2.0 / 3.0
+    
+    -- As suggested by Dropout paper, Appendix A.4:
+    -- http://www.jmlr.org/papers/volume15/srivastava14a.old/source/srivastava14a.pdf
+    local dropout_prob = 0.8
 
     model = nn.Sequential();  -- make a multi-layer perceptron
 
@@ -72,9 +75,9 @@ if opt.network == '' then
     model:add(nn.Linear(hidden_units_2, hidden_units_3))
     model:add(nn.Add(hidden_units_3, true))
     model:add(nn.ReLU())
-    --if opt.dropout then
-    --    model:add(nn.Dropout(dropout_prob))
-    --end
+    if opt.dropout then
+        model:add(nn.Dropout(dropout_prob))
+    end
 
     -- Fourth hidden layer with constant bias term and ReLU activation as well
     model:add(nn.Linear(hidden_units_3, hidden_units_4))
@@ -122,7 +125,6 @@ else
     print("Loaded existing optimizer state " .. opt.network)
 end
 
--- Set up for training (i.e. activate Dropout)
 model:training()
 print("Using model:")
 print(model)
@@ -237,11 +239,20 @@ local nag_config = {
     momentum = 0.5
 }
 
+-- Track validation FER for early stopping
+-- Uses Generalization Loss as discussed in
+-- http://page.mi.fu-berlin.de/prechelt/Biblio/stop_tricks1997.pdf
+local best_validation_fer = 1.0
+local gl_threshold = 3.0        -- Hand-tuned
+
 -- Mini-batch training with help of
 -- https://github.com/torch/demos/blob/master/train-a-digit-classifier/train-on-mnist.lua
 parameters, gradParameters = model:getParameters()
 for epoch = 1,opt.epochs do
     local start_time = sys.clock()
+
+    -- Set up for training (i.e. activate Dropout)
+    model:training()
 
     -- Shuffle our data so we don't get mono-language minibatches
     local shuffle = torch.randperm(train_dataset:size())
@@ -346,6 +357,9 @@ for epoch = 1,opt.epochs do
     local utterance_count = 0
 
     local start_time = sys.clock()
+    
+    -- Set up for validation (i.e. deactivate Dropout)
+    model:evaluate()
 
     local validate_input = torch.zeros(feature_dim * (context_frames + 1))
     if opt.gpu then
@@ -368,7 +382,7 @@ for epoch = 1,opt.epochs do
 
         -- Load context features, if any
         for context = 1, math.min(context_frames, i - 1) do
-            local context_data = dataset[i - context]
+            local context_data = validate_dataset[i - context]
             local context_features_tensor = context_data[1]
             local context_utt = context_data[3]
 
@@ -415,11 +429,12 @@ for epoch = 1,opt.epochs do
     local end_time = sys.clock()
     local elapsed_time = end_time - start_time
     local time_per_sample = elapsed_time / validate_dataset:size()
+    local current_validation_fer = 1.0 - (correct_frames / validate_dataset:size())
     print("================================")
     print("Frame-Level Validation:")
     print("  time to validate 1 sample = " .. (time_per_sample * 1000) .. "ms")
     print("  time to validate all " .. validate_dataset:size() .. " samples = " .. (elapsed_time * 1000) .. "ms")
-    print("  FER: " .. (correct_frames / validate_dataset:size()))
+    print("  FER: " .. current_validation_fer)
     print("================================")
 
     -- Print confusion matrix and reset
@@ -447,11 +462,12 @@ for epoch = 1,opt.epochs do
     local end_time = sys.clock()
     local elapsed_time = end_time - start_time
     local time_per_utterance = elapsed_time / max_utterances
+    local current_uer = 1.0 - (correct_utterances / max_utterances)
     print("================================")
     print("Utterance-Level Validation:")
     print("  time to validate 1 utterance = " .. (time_per_utterance * 1000) .. "ms")
     print("  time to validate all " .. max_utterances .. " utterances = " .. (elapsed_time * 1000) .. "ms")
-    print("  UER: " .. (correct_utterances / max_utterances))
+    print("  UER: " .. current_uer)
     print("================================")
 
     -- Print confusion matrix and reset
@@ -459,9 +475,16 @@ for epoch = 1,opt.epochs do
     validate_confusion:zero()
     print("Done validating neural network.")
 
+    -- Check if we should stop early
+    print("Best validation FER so far " .. best_validation_fer .. ", current FER " .. current_validation_fer)
+    if current_validation_fer < best_validation_fer then
+        best_validation_fer = current_validation_fer
+    end
+    local generalization_loss = 100.0 * ((current_validation_fer / best_validation_fer) - 1)
+    -- TODO: actually stop early instead of just logging it
 
-    -- TODO: check if our train-validation error ratio is sufficient
-
+    print("Generalization loss:")
+    print(generalization_loss)
 
     -- Save the network for future training or testing
     print("Saving current network state...")
@@ -474,4 +497,5 @@ for epoch = 1,opt.epochs do
     torch.save(optimStateFilename, optimState)
     print("Saved.")
 end
+
 print("Done training neural network.")

@@ -17,12 +17,11 @@ module load engaging/torch/20160128
 
 echo "TRAINING DNN MODEL"
 optim=Adam
-epochs=3
+epochs=100
 batchsize=128
 #network=/pool001/atitus/FastLID-DNN/models/1k_1k_256_${optim}_e${epochs}_b${batchsize}
-#filename=/pool001/atitus/FastLID-DNN/models/2k_2k_1k_1k_512_256_${optim}_e${epochs}_b${batchsize}_dropout
-filename=/pool001/atitus/FastLID-DNN/models/gahbage
+filename=/pool001/atitus/FastLID-DNN/models/1k_1k_1k_1k_${optim}_e${epochs}_b${batchsize}
 threads=16
 #th train.lua -n $network --netFilename="${filename}" --gpu -o $optim -e $epochs -t $threads -b $batchsize
-th train.lua --netFilename="${filename}" --gpu -o $optim -e $epochs -t $threads -b $batchsize --dropout
+th train.lua --netFilename="${filename}" --gpu -o $optim -e $epochs -t $threads -b $batchsize
 echo "COMPLETED TRAINING"
