@@ -7,8 +7,8 @@ local lre03DatasetReader = require "lre03DatasetReader"
 -- Parse command-line options
 local opt = lapp[[
    -n,--network       (string)              reload pretrained network
-   -g,--gpu                                 test on GPU
-   --noOOS                                  do not train for Out-of-Set utterances
+   -g,--gpu                                 evaluate on GPU
+   --noOOS                                  do not evaluate Out-of-Set utterances
    -t,--threads       (default 4)           number of threads
 ]]
 
@@ -23,12 +23,13 @@ torch.manualSeed(1)
 torch.setnumthreads(opt.threads)
 print('Set nb of threads to ' .. torch.getnumthreads())
 
-print("Setting up testing dataset...")
-local features_file="/pool001/atitus/FastLID-DNN/data_prep/feats_3/features_test_labeled"
+print("Setting up evaluation dataset...")
+local features_file="/pool001/atitus/FastLID-DNN/data_prep/feats/features_evaluate_labeled"
 local lang2label = {outofset = 1, english = 2, german = 3, mandarin = 4}
 
 -- Force all data to be used
-local total_frames = 335583
+--local total_frames = 335583
+local total_frames = 23507
 local label2maxframes = torch.zeros(4)
 label2maxframes[lang2label["outofset"]] = total_frames
 if opt.noOOS then
@@ -43,7 +44,7 @@ print("Loading neural network " .. opt.network .. "...")
 model = torch.load(opt.network)
 print("Loaded neural network " .. opt.network)
 
--- Set up for testing (i.e. deactivate Dropout)
+-- Set up for evaluation (i.e. deactivate Dropout)
 model:evaluate()
 print("Using model:")
 print(model)
@@ -54,10 +55,11 @@ if opt.gpu then
     model = model:cuda()
 end
 
--- Load the testing dataset
+-- Load the evaluation dataset
 local feature_dim = 39  -- 13 MFCCs, 13 delta MFCCS, 13 delta-delta MFCCs
 local context_frames = 20
-local max_utterances = 1174
+--local max_utterances = 1174
+local max_utterances = 328
 local readCfg = {
     features_file = features_file,
     lang2label = lang2label,
@@ -149,15 +151,15 @@ for i=1,dataset:size() do
     end
 end
 
--- Print time statistics for frame-level testing
+-- Print time statistics for frame-level evaluation
 local end_time = sys.clock()
 local elapsed_time = end_time - start_time
 local time_per_sample = elapsed_time / dataset:size()
 local fer = 1.0 - (correct_frames / dataset:size())
 print("================================")
 print("Frame-Level Testing:")
-print("  time to test 1 sample = " .. (time_per_sample * 1000) .. "ms")
-print("  time to test all " .. dataset:size() .. " samples = " .. (elapsed_time * 1000) .. "ms")
+print("  time to evaluate 1 sample = " .. (time_per_sample * 1000) .. "ms")
+print("  time to evaluate all " .. dataset:size() .. " samples = " .. (elapsed_time * 1000) .. "ms")
 print("  FER: " .. fer)
 print("================================")
 
@@ -181,19 +183,19 @@ for i=1,max_utterances do
     confusion:add(utterance_output_avgs[i], label)
 end
 
--- Print time statistics for utterance-level testing
+-- Print time statistics for utterance-level evaluation
 local end_time = sys.clock()
 local elapsed_time = end_time - start_time
 local time_per_utterance = elapsed_time / max_utterances
 local uer = 1.0 - (correct_utterances / max_utterances)
 print("================================")
 print("Utterance-Level Testing:")
-print("  time to test 1 utterance = " .. (time_per_utterance * 1000) .. "ms")
-print("  time to test all " .. max_utterances .. " utterances = " .. (elapsed_time * 1000) .. "ms")
+print("  time to evaluate 1 utterance = " .. (time_per_utterance * 1000) .. "ms")
+print("  time to evaluate all " .. max_utterances .. " utterances = " .. (elapsed_time * 1000) .. "ms")
 print("  UER: " .. uer)
 print("================================")
 
 -- Print confusion matrix and reset
 print(confusion)
 confusion:zero()
-print("Done testing neural network.")
+print("Done evaluating neural network.")
