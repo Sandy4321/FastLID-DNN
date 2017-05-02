@@ -60,7 +60,7 @@ end
 -- Load the evaluation dataset
 local feature_dim = 39  -- 13 MFCCs, 13 delta MFCCS, 13 delta-delta MFCCs
 local context_frames = 20
-local max_utterances = 2000     -- Force it to break for now
+local max_utterances = 359
 local readCfg = {
     features_file = features_file,
     lang2label = lang2label,
