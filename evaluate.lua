@@ -83,6 +83,7 @@ local correct_frames = 0
 local utterance_output_avgs = {}        -- averaged output probabilities
 local utterance_frame_counts = {}       -- current count of probabilities (used for averaging)
 local utterance_labels = {}             -- correct utterance-level label
+local utterance_ids = {}                -- utterance IDs from NIST files
 local utterance_count = 0
 
 local start_time = sys.clock()
@@ -141,6 +142,7 @@ for i=1,dataset:size() do
         utterance_output_avgs[utterance_count] = output_probs
         utterance_labels[utterance_count] = label
         utterance_frame_counts[utterance_count] = 1
+        utterance_ids[utterance_count] = utt
         current_utterance = utt
     else
         -- Update average
@@ -174,10 +176,13 @@ local correct_utterances = 0
 for i=1,max_utterances do
     -- Test whole utterance
     local label = utterance_labels[i]
+    local utt_id = utterance_ids[i]
     local confidence, classification_tensor = torch.max(utterance_output_avgs[i], 1)
     local classification = classification_tensor[1]
     if classification == label then
         correct_utterances = correct_utterances + 1
+    else
+        print("Incorrectly classified " .. label .. " utterance " .. utt_id .. " as " .. classification)
     end
     
     -- Update confusion matrix
