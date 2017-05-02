@@ -44,7 +44,7 @@ if opt.network == '' then
     end
     local hidden_units_1 = 1024
     local hidden_units_2 = 1024
-    local hidden_units_3 = 1024
+    local hidden_units_3 = 256
     local hidden_units_4 = 1024
     --local hidden_units_5 = 512
     --local hidden_units_6 = 256
