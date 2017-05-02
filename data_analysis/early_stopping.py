@@ -39,9 +39,15 @@ validation_fers = map(lambda x: 100.0 * x, validation_fers)
 gl_threshold = 10.0
 
 fig, ax1 = plt.subplots()
-ax1.plot(range(len(validation_fers)), validation_fers, 'b')
+line1 = ax1.plot(range(len(validation_fers)), validation_fers, 'b', label="Validation FER")
+ax1.set_yticks(np.arange(0.0, 100.0, 10.0))
 ax2 = ax1.twinx()
-ax2.plot(range(len(generalization_losses)), generalization_losses, 'r',
-         range(len(generalization_losses)), gl_threshold * np.ones(len(generalization_losses)), 'g')
-fig.tight_layout()
+line2 = ax2.plot(range(len(generalization_losses)), generalization_losses, 'r', label="Generalization Loss")
+line3 = ax2.plot(range(len(generalization_losses)), gl_threshold * np.ones(len(generalization_losses)), 'g', label="GL Threshold")
+ax2.set_yticks(np.arange(0.0, 100.0, 10.0))
+
+lines = line1 + line2 + line3
+labels = [line.get_label() for line in lines]
+ax1.legend(lines, labels, loc="upper right", shadow=True)
+
 plt.show()
