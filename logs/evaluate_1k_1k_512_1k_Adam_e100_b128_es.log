@@ -1,0 +1,146 @@
+EVALUATING DNN MODEL
+EVALUATING NETWORK WITH MODEL NAME 1k_1k_512_1k_Adam_e100_b128_es
+[?1034hSet nb of threads to 16	
+Setting up evaluation dataset...	
+Loading neural network /pool001/atitus/FastLID-DNN/models/1k_1k_512_1k_Adam_e100_b128_es...	
+Loaded neural network /pool001/atitus/FastLID-DNN/models/1k_1k_512_1k_Adam_e100_b128_es	
+Using model:	
+nn.Sequential {
+  [input -> (1) -> (2) -> (3) -> (4) -> (5) -> (6) -> (7) -> (8) -> (9) -> (10) -> (11) -> (12) -> (13) -> (14) -> output]
+  (1): nn.Linear(819 -> 1024)
+  (2): nn.Add
+  (3): nn.ReLU
+  (4): nn.Linear(1024 -> 1024)
+  (5): nn.Add
+  (6): nn.ReLU
+  (7): nn.Linear(1024 -> 512)
+  (8): nn.Add
+  (9): nn.ReLU
+  (10): nn.Linear(512 -> 1024)
+  (11): nn.Add
+  (12): nn.ReLU
+  (13): nn.Linear(1024 -> 4)
+  (14): nn.LogSoftMax
+}
+Convert network to CUDA	
+Reading dataset...	
+Done setting up dataset with 105781 datapoints across 359 utterances.	
+Utterances per language:	
+ 91
+ 88
+ 88
+ 92
+[torch.DoubleTensor of size 4]
+
+Testing neural network...	
+Convert input tensor to CUDA	
+================================	
+Frame-Level Testing:	
+  time to evaluate 1 sample = 1.1011260797326ms	
+  time to evaluate all 105781 samples = 116478.21784019ms	
+  FER: 0.30514931793044	
+================================	
+ConfusionMatrix:
+[[   11148    4702    3837    6888]   41.949% 	[class: 1]
+ [    5431   15214    2090    3599]   57.773% 	[class: 2]
+ [    1532     476   23730     588]   90.139% 	[class: 3]
+ [    1845     912     379   23410]]  88.187% 	[class: 4]
+ + average row correct: 69.511997699738% 
+ + average rowUcol correct (VOC measure): 53.343649953604% 
+ + global correct: 69.485068206956%
+Incorrectly classified 1 utterance 01eq as 4	
+Incorrectly classified 1 utterance 01er as 4	
+Incorrectly classified 1 utterance 01et as 3	
+Incorrectly classified 1 utterance 01f2 as 4	
+Incorrectly classified 1 utterance 01fg as 2	
+Incorrectly classified 1 utterance 01fz as 4	
+Incorrectly classified 2 utterance 01gt as 1	
+Incorrectly classified 1 utterance 01h1 as 4	
+Incorrectly classified 1 utterance 01h6 as 4	
+Incorrectly classified 1 utterance 01ho as 4	
+Incorrectly classified 1 utterance 01hx as 3	
+Incorrectly classified 1 utterance 01hz as 3	
+Incorrectly classified 1 utterance 01i2 as 3	
+Incorrectly classified 1 utterance 01it as 4	
+Incorrectly classified 1 utterance 01j1 as 3	
+Incorrectly classified 2 utterance 01j3 as 1	
+Incorrectly classified 1 utterance 01j5 as 4	
+Incorrectly classified 1 utterance 01j6 as 4	
+Incorrectly classified 2 utterance 01j7 as 1	
+Incorrectly classified 1 utterance 01j9 as 3	
+Incorrectly classified 2 utterance 01jc as 1	
+Incorrectly classified 1 utterance 01ji as 4	
+Incorrectly classified 2 utterance 01k7 as 1	
+Incorrectly classified 1 utterance 01ko as 3	
+Incorrectly classified 1 utterance 01kp as 2	
+Incorrectly classified 1 utterance 01kw as 4	
+Incorrectly classified 1 utterance 01l0 as 3	
+Incorrectly classified 1 utterance 01l3 as 4	
+Incorrectly classified 1 utterance 01l8 as 4	
+Incorrectly classified 2 utterance 01mb as 1	
+Incorrectly classified 2 utterance 01mk as 1	
+Incorrectly classified 1 utterance 01n8 as 4	
+Incorrectly classified 1 utterance 01n9 as 4	
+Incorrectly classified 2 utterance 01nh as 1	
+Incorrectly classified 1 utterance 01nx as 4	
+Incorrectly classified 1 utterance 01oc as 4	
+Incorrectly classified 2 utterance 01op as 4	
+Incorrectly classified 1 utterance 01p0 as 4	
+Incorrectly classified 1 utterance 01p2 as 4	
+Incorrectly classified 1 utterance 01p3 as 4	
+Incorrectly classified 1 utterance 01p4 as 4	
+Incorrectly classified 1 utterance 01p5 as 4	
+Incorrectly classified 2 utterance 01pz as 1	
+Incorrectly classified 2 utterance 01qq as 3	
+Incorrectly classified 2 utterance 01s0 as 3	
+Incorrectly classified 2 utterance 01t3 as 1	
+Incorrectly classified 2 utterance 01v2 as 4	
+Incorrectly classified 2 utterance 01xo as 1	
+Incorrectly classified 2 utterance 01xr as 1	
+Incorrectly classified 2 utterance 01yr as 4	
+Incorrectly classified 2 utterance 01z4 as 1	
+Incorrectly classified 2 utterance 0204 as 1	
+Incorrectly classified 2 utterance 0223 as 1	
+Incorrectly classified 2 utterance 022v as 1	
+Incorrectly classified 2 utterance 0239 as 1	
+Incorrectly classified 2 utterance 023y as 1	
+Incorrectly classified 2 utterance 024a as 3	
+Incorrectly classified 2 utterance 024q as 1	
+Incorrectly classified 2 utterance 025b as 4	
+Incorrectly classified 2 utterance 026a as 1	
+Incorrectly classified 2 utterance 028f as 4	
+Incorrectly classified 2 utterance 02b7 as 4	
+Incorrectly classified 2 utterance 02bf as 1	
+Incorrectly classified 2 utterance 02cc as 1	
+Incorrectly classified 2 utterance 02fw as 1	
+Incorrectly classified 2 utterance 02gb as 1	
+Incorrectly classified 2 utterance 02h2 as 1	
+Incorrectly classified 2 utterance 02hz as 1	
+Incorrectly classified 2 utterance 02jq as 4	
+Incorrectly classified 2 utterance 02jr as 4	
+Incorrectly classified 2 utterance 02kb as 1	
+Incorrectly classified 2 utterance 02kv as 1	
+Incorrectly classified 2 utterance 02lg as 3	
+Incorrectly classified 2 utterance 02nn as 3	
+Incorrectly classified 3 utterance 02pk as 1	
+Incorrectly classified 2 utterance 02q0 as 4	
+Incorrectly classified 2 utterance 02qg as 3	
+Incorrectly classified 2 utterance 02rp as 4	
+Incorrectly classified 2 utterance 01vv as 4	
+Incorrectly classified 4 utterance 01yr as 1	
+================================	
+Utterance-Level Testing:	
+  time to evaluate 1 utterance = 0.24527029074666ms	
+  time to evaluate all 359 utterances = 88.052034378052ms	
+  UER: 0.22284122562674	
+================================	
+ConfusionMatrix:
+[[      59       2       8      23]   64.130% 	[class: 1]
+ [      28      43       6      11]   48.864% 	[class: 2]
+ [       1       0      86       0]   98.851% 	[class: 3]
+ [       1       0       0      91]]  98.913% 	[class: 4]
+ + average row correct: 77.689422667027% 
+ + average rowUcol correct (VOC measure): 63.377291709185% 
+ + global correct: 77.715877437326%
+Done evaluating neural network.	
+COMPLETED EVALUATION
