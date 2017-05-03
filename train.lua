@@ -43,15 +43,16 @@ if opt.network == '' then
         outputs = 4       -- number of classes (three languages + OOS)
     end
     local hidden_units_1 = 1024
-    local hidden_units_2 = 1024
-    local hidden_units_3 = 256
-    local hidden_units_4 = 1024
+    local hidden_units_2 = 2048
+    local hidden_units_3 = 1024
+    local hidden_units_4 = 512
     --local hidden_units_5 = 512
     --local hidden_units_6 = 256
     
     -- As suggested by Dropout paper, Appendix A.4:
     -- http://www.jmlr.org/papers/volume15/srivastava14a.old/source/srivastava14a.pdf
-    local dropout_prob = 0.8
+    local retention_prob = 0.8
+    local dropout_prob = 1.0 - retention_prob
 
     model = nn.Sequential();  -- make a multi-layer perceptron
 
