@@ -16,7 +16,7 @@ module load engaging/lua/5.3.2
 module load engaging/torch/20160128
 
 echo "EVALUATING DNN MODEL"
-model_name=1k_2k_1k_512_Adam_e100_b128_es
+model_name=1k_1k_64_1k_es_wd0.0005
 network=/pool001/atitus/FastLID-DNN/models/${model_name}
 threads=16
 echo "EVALUATING NETWORK WITH MODEL NAME ${model_name}"

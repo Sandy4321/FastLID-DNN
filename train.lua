@@ -12,6 +12,7 @@ local opt = lapp[[
    -o,--optimization  (default "")          optimization: Adam | NAG 
    -b,--batchSize     (default 128)         batch size
    -e,--epochs        (default 100)         number of epochs in training
+   -w,--weightDecay   (default 0)           L2 regularization hyperparameter
    -g,--gpu                                 train on GPU
    --netFilename      (string)              name of file to save network to
    --noOOS                                  do not train for Out-of-Set utterances
@@ -22,6 +23,8 @@ local opt = lapp[[
 if opt.gpu then
     require "cunn"
 end
+
+print("Weight decay: " .. opt.weightDecay)
 
 -- Fix seed
 torch.manualSeed(1)
@@ -231,12 +234,14 @@ local adam_config = {
     learningRate = learning_rate,
     beta1 = 0.9,
     beta2 = 0.999,
+    weightDecay = opt.weightDecay,
     epsilon = 1e-8
 }
 
 -- Nesterov-accelerated gradient descent
 local nag_config = {
     learningRate = learning_rate,
+    weightDecay = opt.weightDecay,
     momentum = 0.5
 }
 
