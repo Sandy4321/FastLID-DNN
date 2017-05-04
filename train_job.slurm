@@ -19,7 +19,7 @@ echo "TRAINING DNN MODEL"
 optim=Adam
 epochs=100
 batchsize=128
-weight_decay=0.0005
+weight_decay=0.005
 #network=/pool001/atitus/FastLID-DNN/models/1k_1k_256_${optim}_e${epochs}_b${batchsize}
 filename=/pool001/atitus/FastLID-DNN/models/1k_1k_64_1k_es_wd${weight_decay}
 threads=16

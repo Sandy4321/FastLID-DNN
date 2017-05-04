@@ -46,9 +46,9 @@ if opt.network == '' then
         outputs = 4       -- number of classes (three languages + OOS)
     end
     local hidden_units_1 = 1024
-    local hidden_units_2 = 2048
-    local hidden_units_3 = 1024
-    local hidden_units_4 = 512
+    local hidden_units_2 = 1024
+    local hidden_units_3 = 64
+    local hidden_units_4 = 1024
     --local hidden_units_5 = 512
     --local hidden_units_6 = 256
     
@@ -234,14 +234,12 @@ local adam_config = {
     learningRate = learning_rate,
     beta1 = 0.9,
     beta2 = 0.999,
-    weightDecay = opt.weightDecay,
     epsilon = 1e-8
 }
 
 -- Nesterov-accelerated gradient descent
 local nag_config = {
     learningRate = learning_rate,
-    weightDecay = opt.weightDecay,
     momentum = 0.5
 }
 
@@ -318,6 +316,13 @@ for epoch = 1,opt.epochs do
             -- Estimate df/dW
             local df_do = criterion:backward(output_probs, targets)
             model:backward(train_inputs, df_do)
+
+            -- Perform weight decay if requested
+            -- http://davidstutz.de/examples-for-getting-started-with-torch-for-deep-learning/
+            if opt.weightDecay > 0 then
+                f = f + opt.weightDecay * torch.norm(parameters, 2) ^ 2 / 2
+                gradParameters:add(parameters:clone():mul(opt.weightDecay))
+            end
 
             -- Update train confusion matrix
             for i = 1,opt.batchSize do
