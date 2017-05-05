@@ -7,6 +7,7 @@ local lre03DatasetReader = require "lre03DatasetReader"
 -- Parse command-line options
 local opt = lapp[[
    -n,--network       (string)              reload pretrained network
+   --selectedUtt      (string)              utterance for which to print frame-level posteriors
    -g,--gpu                                 evaluate on GPU
    --noOOS                                  do not evaluate Out-of-Set utterances
    -t,--threads       (default 4)           number of threads
@@ -95,6 +96,9 @@ if opt.gpu then
     input = input:cuda()
 end
 
+-- Pick an utterance for which to print frame-level posteriors
+selected_utt = opt.selectedUtt
+
 for i=1,dataset:size() do
     local data = dataset[i]
     local features_tensor = data[1]
@@ -126,6 +130,12 @@ for i=1,dataset:size() do
     --local output_nlls = model:forward(input)
     --local output_probs = torch.exp(output_nlls)
     local output_probs = model:forward(input)
+
+    if utt == selected_utt then
+        -- Print to our log
+        print("Frame " .. i .. " posteriors:" .. output_probs[lang2label["outofset"]] .. "," .. output_probs[lang2label["english"]] .. "," .. output_probs[lang2label["german"]] .. "," .. output_probs[lang2label["mandarin"]])
+    end
+
     local confidence, classification_tensor = torch.max(output_probs, 1)
     local classification = classification_tensor[1]
     if classification == label then

@@ -17,8 +17,10 @@ module load engaging/torch/20160128
 
 echo "EVALUATING DNN MODEL"
 model_name=1k_1k_512_64_1k_es
+selected_utt=023q       # German
 network=/pool001/atitus/FastLID-DNN/models/${model_name}
 threads=16
 echo "EVALUATING NETWORK WITH MODEL NAME ${model_name}"
-th evaluate.lua --network="${network}" --gpu -t $threads
+#th evaluate.lua --network="${network}" --gpu -t $threads
+th evaluate.lua --network="${network}" --gpu -t $threads --selectedUtt="${selected_utt}"
 echo "COMPLETED EVALUATION"
