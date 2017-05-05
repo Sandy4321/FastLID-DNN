@@ -19,11 +19,11 @@ echo "TRAINING DNN MODEL"
 optim=Adam
 epochs=100
 batchsize=128
-weight_decay=0.00005
-network=/pool001/atitus/FastLID-DNN/models/1k_1k_64_1k_es_wd${weight_decay}
-filename=/pool001/atitus/FastLID-DNN/models/1k_1k_64_1k_es_wd${weight_decay}
+network=/pool001/atitus/FastLID-DNN/models/1k_1k_512_64_1k_es
+best_validation_fer=
+filename=/pool001/atitus/FastLID-DNN/models/1k_1k_512_64_1k_es
 threads=16
 echo "TRAINING NETWORK WITH FILENAME ${filename}"
-th train.lua --netFilename="${filename}" --gpu -o $optim -e $epochs -t $threads -b $batchsize --earlyStopping -w ${weight_decay}
-#th train.lua -n $network --netFilename="${filename}" --gpu -o $optim -e $epochs -t $threads -b $batchsize --earlyStopping -w ${weight_decay}
+#th train.lua --netFilename="${filename}" --gpu -o $optim -e $epochs -t $threads -b $batchsize --earlyStopping
+th train.lua -n $network --netFilename="${filename}" --gpu -o $optim -e $epochs -t $threads -b $batchsize --earlyStopping --bestValidationFER="${best_validation_fer}"
 echo "COMPLETED TRAINING"

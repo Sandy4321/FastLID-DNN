@@ -17,6 +17,7 @@ local opt = lapp[[
    --netFilename      (string)              name of file to save network to
    --noOOS                                  do not train for Out-of-Set utterances
    --earlyStopping                          perform generalization loss-based early stopping
+   --bestValidationFER (default 1.0)        best validation frame error rate seen so far
    -t,--threads       (default 4)           number of threads
 ]]
 
@@ -47,9 +48,9 @@ if opt.network == '' then
     end
     local hidden_units_1 = 1024
     local hidden_units_2 = 1024
-    local hidden_units_3 = 64
-    local hidden_units_4 = 1024
-    --local hidden_units_5 = 512
+    local hidden_units_3 = 512
+    local hidden_units_4 = 64
+    local hidden_units_5 = 1024
     --local hidden_units_6 = 256
     
     -- As suggested by Dropout paper, Appendix A.4:
@@ -92,14 +93,12 @@ if opt.network == '' then
     end
 
     -- Fifth hidden layer with constant bias term and ReLU activation as well
-    --[[
     model:add(nn.Linear(hidden_units_4, hidden_units_5))
     model:add(nn.Add(hidden_units_5, true))
     model:add(nn.ReLU())
     if opt.dropout then
         model:add(nn.Dropout(dropout_prob))
     end
-    --]]
 
     -- Sixth hidden layer with constant bias term and ReLU activation as well
     --[[
@@ -113,7 +112,8 @@ if opt.network == '' then
 
     -- Output layer with softmax layer
     --model:add(nn.Linear(hidden_units_6, outputs))
-    model:add(nn.Linear(hidden_units_4, outputs))
+    model:add(nn.Linear(hidden_units_5, outputs))
+    --model:add(nn.Linear(hidden_units_4, outputs))
     --model:add(nn.Linear(hidden_units_3, outputs))
     --model:add(nn.Linear(hidden_units_2, outputs))
     model:add(nn.LogSoftMax())
@@ -246,7 +246,7 @@ local nag_config = {
 -- Track validation FER for early stopping
 -- Uses Generalization Loss as discussed in
 -- http://page.mi.fu-berlin.de/prechelt/Biblio/stop_tricks1997.pdf
-local best_validation_fer = 1.0
+local best_validation_fer = opt.bestValidationFER
 local gl_threshold = 10.0        -- Hand-tuned
 
 -- Mini-batch training with help of
