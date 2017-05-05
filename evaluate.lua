@@ -7,10 +7,11 @@ local lre03DatasetReader = require "lre03DatasetReader"
 -- Parse command-line options
 local opt = lapp[[
    -n,--network       (string)              reload pretrained network
-   --selectedUtt      (string)              utterance for which to print frame-level posteriors
+   --selectedUtt                            utterance for which to print frame-level posteriors
    -g,--gpu                                 evaluate on GPU
    --noOOS                                  do not evaluate Out-of-Set utterances
    -t,--threads       (default 4)           number of threads
+   --confidenceThreshold (default 0.0)      minimum frame posterior confidence to be considered for utterance
 ]]
 
 if opt.gpu then
@@ -82,7 +83,6 @@ local confusion = optim.ConfusionMatrix(labels)
 print("Testing neural network...")
 local correct_frames = 0
 local utterance_output_avgs = {}        -- averaged output probabilities
-local utterance_frame_counts = {}       -- current count of probabilities (used for averaging)
 local utterance_labels = {}             -- correct utterance-level label
 local utterance_ids = {}                -- utterance IDs from NIST files
 local utterance_count = 0
@@ -97,7 +97,12 @@ if opt.gpu then
 end
 
 -- Pick an utterance for which to print frame-level posteriors
-selected_utt = opt.selectedUtt
+local selected_utt = opt.selectedUtt
+
+-- Only add posteriors to our utterance level determination if they are reasonably confident
+local log_confidence_threshold = math.log(opt.confidenceThreshold)
+print("Using confidence threshold " .. opt.confidenceThreshold .. " (log " .. log_confidence_threshold .. ")")
+local confident_frame_counts = {}       -- current count of probabilities (used for averaging)
 
 for i=1,dataset:size() do
     local data = dataset[i]
@@ -149,18 +154,25 @@ for i=1,dataset:size() do
     if utt ~= current_utterance then
         -- Create new entry
         utterance_count = utterance_count + 1
-        utterance_output_avgs[utterance_count] = output_probs
         utterance_labels[utterance_count] = label
-        utterance_frame_counts[utterance_count] = 1
+        if confidence >= log_confidence_threshold then
+            confident_frame_counts[utterance_count] = 1
+            utterance_output_avgs[utterance_count] = output_probs
+        else
+            confident_frame_counts[utterance_count] = 0
+            utterance_output_avgs[utterance_count] = torch.zeros(4)
+        end
         utterance_ids[utterance_count] = utt
         current_utterance = utt
     else
-        -- Update average
-        local old_frame_count = utterance_frame_counts[utterance_count]
-        local old_avg = utterance_output_avgs[utterance_count]
-        local new_avg = torch.mul(torch.add(output_probs, torch.mul(old_avg, old_frame_count)), 1.0 / (old_frame_count + 1))
-        utterance_output_avgs[utterance_count] = new_avg
-        utterance_frame_counts[utterance_count] = utterance_frame_counts[utterance_count] + 1
+        -- Update average if necessary
+        if confidence >= log_confidence_threshold then
+            local old_frame_count = confident_frame_counts[utterance_count]
+            local old_avg = utterance_output_avgs[utterance_count]
+            local new_avg = torch.mul(torch.add(output_probs, torch.mul(old_avg, old_frame_count)), 1.0 / (old_frame_count + 1))
+            utterance_output_avgs[utterance_count] = new_avg
+            confident_frame_counts[utterance_count] = confident_frame_counts[utterance_count] + 1
+        end
     end
 end
 
