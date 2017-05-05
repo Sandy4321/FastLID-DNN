@@ -1,0 +1,133 @@
+EVALUATING DNN MODEL
+EVALUATING NETWORK WITH MODEL NAME 1k_1k_64_1k_es_wd0.000005
+[?1034hSet nb of threads to 16	
+Setting up evaluation dataset...	
+Loading neural network /pool001/atitus/FastLID-DNN/models/1k_1k_64_1k_es_wd0.000005...	
+Loaded neural network /pool001/atitus/FastLID-DNN/models/1k_1k_64_1k_es_wd0.000005	
+Using model:	
+nn.Sequential {
+  [input -> (1) -> (2) -> (3) -> (4) -> (5) -> (6) -> (7) -> (8) -> (9) -> (10) -> (11) -> (12) -> (13) -> (14) -> output]
+  (1): nn.Linear(819 -> 1024)
+  (2): nn.Add
+  (3): nn.ReLU
+  (4): nn.Linear(1024 -> 1024)
+  (5): nn.Add
+  (6): nn.ReLU
+  (7): nn.Linear(1024 -> 64)
+  (8): nn.Add
+  (9): nn.ReLU
+  (10): nn.Linear(64 -> 1024)
+  (11): nn.Add
+  (12): nn.ReLU
+  (13): nn.Linear(1024 -> 4)
+  (14): nn.LogSoftMax
+}
+Convert network to CUDA	
+Reading dataset...	
+Done setting up dataset with 105781 datapoints across 359 utterances.	
+Utterances per language:	
+ 91
+ 88
+ 88
+ 92
+[torch.DoubleTensor of size 4]
+
+Testing neural network...	
+Convert input tensor to CUDA	
+================================	
+Frame-Level Testing:	
+  time to evaluate 1 sample = 1.0583529085268ms	
+  time to evaluate all 105781 samples = 111953.62901688ms	
+  FER: 0.39765175220503	
+================================	
+ConfusionMatrix:
+[[   11027    3591    6224    5733]   41.494% 	[class: 1]
+ [    7296   12025    3582    3431]   45.663% 	[class: 2]
+ [    1913     757   22729     927]   86.337% 	[class: 3]
+ [    5620    1300    1690   17936]]  67.566% 	[class: 4]
+ + average row correct: 60.264930874109% 
+ + average rowUcol correct (VOC measure): 43.320649117231% 
+ + global correct: 60.234824779497%
+Incorrectly classified 1 utterance 01eq as 4	
+Incorrectly classified 1 utterance 01f2 as 2	
+Incorrectly classified 1 utterance 01fg as 2	
+Incorrectly classified 1 utterance 01gd as 2	
+Incorrectly classified 2 utterance 01gt as 1	
+Incorrectly classified 1 utterance 01hx as 3	
+Incorrectly classified 1 utterance 01hz as 3	
+Incorrectly classified 1 utterance 01i4 as 3	
+Incorrectly classified 1 utterance 01it as 4	
+Incorrectly classified 1 utterance 01j0 as 3	
+Incorrectly classified 1 utterance 01j1 as 3	
+Incorrectly classified 1 utterance 01j2 as 4	
+Incorrectly classified 2 utterance 01j3 as 1	
+Incorrectly classified 1 utterance 01j6 as 2	
+Incorrectly classified 2 utterance 01j7 as 1	
+Incorrectly classified 1 utterance 01j9 as 3	
+Incorrectly classified 2 utterance 01jc as 1	
+Incorrectly classified 1 utterance 01ji as 4	
+Incorrectly classified 1 utterance 01jp as 3	
+Incorrectly classified 2 utterance 01k7 as 1	
+Incorrectly classified 1 utterance 01l0 as 3	
+Incorrectly classified 1 utterance 01l3 as 4	
+Incorrectly classified 1 utterance 01l8 as 4	
+Incorrectly classified 1 utterance 01lr as 4	
+Incorrectly classified 2 utterance 01mb as 1	
+Incorrectly classified 1 utterance 01mz as 4	
+Incorrectly classified 1 utterance 01n9 as 4	
+Incorrectly classified 2 utterance 01nh as 1	
+Incorrectly classified 1 utterance 01nx as 4	
+Incorrectly classified 1 utterance 01oc as 4	
+Incorrectly classified 1 utterance 01ok as 4	
+Incorrectly classified 1 utterance 01oy as 2	
+Incorrectly classified 1 utterance 01p2 as 4	
+Incorrectly classified 1 utterance 01p3 as 2	
+Incorrectly classified 1 utterance 01p4 as 2	
+Incorrectly classified 2 utterance 01pz as 1	
+Incorrectly classified 2 utterance 01qq as 3	
+Incorrectly classified 2 utterance 01s0 as 3	
+Incorrectly classified 2 utterance 01v2 as 4	
+Incorrectly classified 2 utterance 01xr as 1	
+Incorrectly classified 2 utterance 01yr as 4	
+Incorrectly classified 2 utterance 01z4 as 1	
+Incorrectly classified 2 utterance 0204 as 1	
+Incorrectly classified 2 utterance 0223 as 1	
+Incorrectly classified 2 utterance 022v as 1	
+Incorrectly classified 2 utterance 0239 as 1	
+Incorrectly classified 2 utterance 025b as 4	
+Incorrectly classified 2 utterance 026a as 3	
+Incorrectly classified 2 utterance 028f as 4	
+Incorrectly classified 2 utterance 02b7 as 1	
+Incorrectly classified 4 utterance 02b8 as 1	
+Incorrectly classified 2 utterance 02bf as 1	
+Incorrectly classified 2 utterance 02cc as 1	
+Incorrectly classified 2 utterance 02dk as 1	
+Incorrectly classified 2 utterance 02fw as 1	
+Incorrectly classified 2 utterance 02gb as 3	
+Incorrectly classified 4 utterance 02hi as 1	
+Incorrectly classified 2 utterance 02jq as 1	
+Incorrectly classified 2 utterance 02jr as 4	
+Incorrectly classified 2 utterance 02kb as 1	
+Incorrectly classified 2 utterance 02kv as 1	
+Incorrectly classified 2 utterance 02lg as 3	
+Incorrectly classified 2 utterance 02nn as 1	
+Incorrectly classified 2 utterance 02qg as 3	
+Incorrectly classified 2 utterance 01vv as 1	
+Incorrectly classified 4 utterance 01yr as 1	
+Incorrectly classified 3 utterance 02hw as 1	
+================================	
+Utterance-Level Testing:	
+  time to evaluate 1 utterance = 0.13982153868609ms	
+  time to evaluate all 359 utterances = 50.195932388306ms	
+  UER: 0.1866295264624	
+================================	
+ConfusionMatrix:
+[[      64       7       8      13]   69.565% 	[class: 1]
+ [      24      53       6       5]   60.227% 	[class: 2]
+ [       1       0      86       0]   98.851% 	[class: 3]
+ [       3       0       0      89]]  96.739% 	[class: 4]
+ + average row correct: 81.345549225807% 
+ + average rowUcol correct (VOC measure): 68.795104324818% 
+ + global correct: 81.33704735376%
+Done evaluating neural network.	
+COMPLETED EVALUATION
