@@ -141,7 +141,8 @@ for i=1,dataset:size() do
         print("Frame " .. i .. " posteriors:" .. output_probs[lang2label["outofset"]] .. "," .. output_probs[lang2label["english"]] .. "," .. output_probs[lang2label["german"]] .. "," .. output_probs[lang2label["mandarin"]])
     end
 
-    local confidence, classification_tensor = torch.max(output_probs, 1)
+    local confidence_tensor, classification_tensor = torch.max(output_probs, 1)
+    local confidence = confidence_tensor[1]
     local classification = classification_tensor[1]
     if classification == label then
         correct_frames = correct_frames + 1
@@ -160,7 +161,7 @@ for i=1,dataset:size() do
             utterance_output_avgs[utterance_count] = output_probs
         else
             confident_frame_counts[utterance_count] = 0
-            utterance_output_avgs[utterance_count] = torch.zeros(4)
+            utterance_output_avgs[utterance_count] = torch.zeros(4):cuda()
         end
         utterance_ids[utterance_count] = utt
         current_utterance = utt
