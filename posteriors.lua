@@ -24,7 +24,7 @@ print('Set nb of threads to ' .. torch.getnumthreads())
 
 print("Setting up evaluation dataset...")
 local features_file="/pool001/atitus/FastLID-DNN/data_prep/feats/" .. opt.languages .. "_evaluate"
-local lang2label = {outofset = 1, english = 2, german = 3, mandarin = 1}
+local lang2label = {outofset = 1, english = 1, german = 2, mandarin = 3}
 
 -- Balance data
 local total_frames = 26326      -- Amount in German, the minimum of this language set
@@ -52,7 +52,6 @@ end
 -- Load the evaluation dataset
 local feature_dim = 39  -- 13 MFCCs, 13 delta MFCCS, 13 delta-delta MFCCs
 local context_frames = 20
-local max_utterances = 359
 local readCfg = {
     features_file = features_file,
     lang2label = lang2label,
@@ -87,9 +86,7 @@ for i=1,dataset:size() do
         local context_utt = context_data[3]
 
         -- Don't let another utterance spill over into this one!
-        if context_utt == utt then
-            local slice_begin = (context * feature_dim) + 1
-            local slice_end = (context+1)*feature_dim
+        if context_utt == utt then local slice_begin = (context * feature_dim) + 1 local slice_end = (context+1)*feature_dim
             input[{ {slice_begin, slice_end} }] = context_features_tensor
         end
     end
