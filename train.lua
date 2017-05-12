@@ -102,7 +102,7 @@ if opt.gpu then
 end
 
 --local lang2label = {outofset = 1, english = 2, german = 3, mandarin = 4}
-local lang2label = {outofset = 1, english = 2, german = 3}
+local lang2label = {outofset = 1, english = 2, german = 1, mandarin = 3}
 
 -- Load the validation dataset
 print("Loading validation dataset...")
@@ -110,11 +110,12 @@ local validate_file="/pool001/atitus/FastLID-DNN/data_prep/feats/" .. opt.langua
 
 -- Balance the data
 local label2maxframes = torch.zeros(4)
-local min_frames = 22022        -- Count for German, the minimum in this label set
+--local min_frames = 22022        -- Count for German, the minimum in this label set
+local min_frames = 45490        -- Count for Mandarin, the minimum in this label set
 label2maxframes[lang2label["outofset"]] = min_frames
 label2maxframes[lang2label["english"]] = min_frames
 label2maxframes[lang2label["german"]] = min_frames
---label2maxframes[lang2label["mandarin"]] = min_frames
+label2maxframes[lang2label["mandarin"]] = min_frames
 label2maxframes:floor()
 local readCfg = {
     features_file = validate_file,
@@ -132,11 +133,12 @@ local train_file="/pool001/atitus/FastLID-DNN/data_prep/feats/" .. opt.languages
 
 -- Balance the data
 local label2maxframes = torch.zeros(4)
-local min_frames = 671747   -- Count for German, the minimum in this label set
+--local min_frames = 671747   -- Count for German, the minimum in this label set
+local min_frames = 1318963  -- Count for Mandarin, the minimum in this label set 
 label2maxframes[lang2label["outofset"]] = min_frames
 label2maxframes[lang2label["english"]] = min_frames
 label2maxframes[lang2label["german"]] = min_frames
---label2maxframes[lang2label["mandarin"]] = min_frames
+label2maxframes[lang2label["mandarin"]] = min_frames
 label2maxframes:floor()
 local readCfg = {
     features_file = train_file,
@@ -158,7 +160,7 @@ end
 
 -- Set up confusion matrices
 --labels = {lang2label["outofset"], lang2label["english"], lang2label["german"], lang2label["mandarin"]}
-labels = {lang2label["outofset"], lang2label["english"], lang2label["german"]}
+labels = {lang2label["outofset"], lang2label["english"], lang2label["mandarin"]}
 local train_confusion = optim.ConfusionMatrix(labels)
 local validate_confusion = optim.ConfusionMatrix(labels)
 
@@ -316,9 +318,7 @@ for epoch = 1,opt.epochs do
             end
         end
 
-        -- Evaluate this frame and convert negative log likelihoods to probabilities
-        --local output_nlls = model:forward(validate_input)
-        --local output_probs = torch.exp(output_nlls)
+        -- Evaluate this frame
         local output_probs = model:forward(validate_input)
         local confidence, classification_tensor = torch.max(output_probs, 1)
         local classification = classification_tensor[1]
@@ -366,7 +366,10 @@ for epoch = 1,opt.epochs do
     local start_time = sys.clock()
 
     local correct_utterances = 0
-    local max_utterances = 284  -- Total in validation set
+    --local max_utterances = 284  -- Total in validation set (English, German, Mandarin)
+    --local max_utterances = 211  -- Total in validation set (English, German)
+    --local max_utterances = 214  -- Total in validation set (German, Mandarin)
+    local max_utterances = 444  -- Total in validation set (English, Mandarin)
     for i=1,max_utterances do
         -- Test whole utterance
         local label = utterance_labels[i]
