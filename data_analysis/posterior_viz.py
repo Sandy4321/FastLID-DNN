@@ -4,7 +4,7 @@ import sys
 import wave
 
 if len(sys.argv) != 3:
-    print "Usage: python posterior.py <log (Slurm) file> <wav file>"
+    print "Usage: python posterior_viz.py <log (Slurm) file> <wav file>"
     sys.exit(1)
 
 log_filename = sys.argv[1]
