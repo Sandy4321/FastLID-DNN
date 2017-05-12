@@ -133,8 +133,8 @@ local train_file="/pool001/atitus/FastLID-DNN/data_prep/feats/" .. opt.languages
 
 -- Balance the data
 local label2maxframes = torch.zeros(4)
---local min_frames = 671747   -- Count for German, the minimum in this label set
-local min_frames = 1318963  -- Count for Mandarin, the minimum in this label set 
+local min_frames = 671747   -- Count for German, the minimum in our overall label set
+--local min_frames = 1318963  -- Count for Mandarin, the minimum in this label set 
 label2maxframes[lang2label["outofset"]] = min_frames
 label2maxframes[lang2label["english"]] = min_frames
 label2maxframes[lang2label["german"]] = min_frames

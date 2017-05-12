@@ -25,8 +25,7 @@ print('Set nb of threads to ' .. torch.getnumthreads())
 
 print("Setting up evaluation dataset...")
 local features_file="/pool001/atitus/FastLID-DNN/data_prep/feats/" .. opt.languages .. "_evaluate"
---local lang2label = {outofset = 1, english = 2, german = 3, mandarin = 4}
-local lang2label = {outofset = 1, english = 2, german = 3}
+local lang2label = {outofset = 1, english = 2, german = 3, mandarin = 1}
 
 -- Balance data
 local total_frames = 26326      -- Count for German, the minimum in this label set
@@ -34,7 +33,7 @@ local label2maxframes = torch.zeros(4)
 label2maxframes[lang2label["outofset"]] = total_frames
 label2maxframes[lang2label["english"]] = total_frames
 label2maxframes[lang2label["german"]] = total_frames
---label2maxframes[lang2label["mandarin"]] = total_frames
+label2maxframes[lang2label["mandarin"]] = total_frames
 
 print("Loading neural network " .. opt.network .. "...")
 model = torch.load(opt.network)
@@ -54,7 +53,8 @@ end
 -- Load the evaluation dataset
 local feature_dim = 39  -- 13 MFCCs, 13 delta MFCCS, 13 delta-delta MFCCs
 local context_frames = 20
-local max_utterances = 359
+--local max_utterances = 359      -- English, German, Mandarin
+local max_utterances = 267      -- English, German
 local readCfg = {
     features_file = features_file,
     lang2label = lang2label,
@@ -65,7 +65,6 @@ local readCfg = {
 local dataset, label2framecount = lre03DatasetReader.read(readCfg)
 
 -- Set up confusion matrix
---labels = {1, 2, 3, 4}
 labels = {1, 2, 3}
 local confusion = optim.ConfusionMatrix(labels)
 

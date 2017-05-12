@@ -21,5 +21,5 @@ model_name=1k_1k_512_64_1k_${languages}
 network=/pool001/atitus/FastLID-DNN/models/${model_name}
 threads=16
 echo "EVALUATING NETWORK WITH MODEL NAME ${model_name}"
-th evaluate.lua --network="${network}" --gpu -t $threads --language="${languages}"
+th evaluate.lua --network="${network}" --gpu -t $threads --languages="${languages}"
 echo "COMPLETED EVALUATION"

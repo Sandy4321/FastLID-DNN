@@ -8,7 +8,7 @@ local opt = lapp[[
    -n,--network       (string)              reload pretrained network
    -g,--gpu                                 evaluate on GPU
    -t,--threads       (default 4)           number of threads
-   --language         (string)              languages being used, delimited by "_"
+   --languages         (string)             languages being used, delimited by "_"
 ]]
 
 if opt.gpu then
@@ -24,16 +24,15 @@ print('Set nb of threads to ' .. torch.getnumthreads())
 
 print("Setting up evaluation dataset...")
 local features_file="/pool001/atitus/FastLID-DNN/data_prep/feats/" .. opt.languages .. "_evaluate"
---local lang2label = {outofset = 1, english = 2, german = 3, mandarin = 4}
-local lang2label = {outofset = 1, english = 2, german = 3}
+local lang2label = {outofset = 1, english = 2, german = 3, mandarin = 1}
 
 -- Balance data
-local total_frames = 26326      -- Amount in German, the minimum of this set
+local total_frames = 26326      -- Amount in German, the minimum of this language set
 local label2maxframes = torch.zeros(4)
 label2maxframes[lang2label["outofset"]] = total_frames
 label2maxframes[lang2label["english"]] = total_frames
 label2maxframes[lang2label["german"]] = total_frames
---label2maxframes[lang2label["mandarin"]] = total_frames
+label2maxframes[lang2label["mandarin"]] = total_frames
 
 print("Loading neural network " .. opt.network .. "...")
 model = torch.load(opt.network)
