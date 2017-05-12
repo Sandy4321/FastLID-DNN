@@ -8,6 +8,7 @@ local opt = lapp[[
    -n,--network       (string)              reload pretrained network
    -g,--gpu                                 evaluate on GPU
    -t,--threads       (default 4)           number of threads
+   --language         (string)              languages being used, delimited by "_"
 ]]
 
 if opt.gpu then
@@ -22,16 +23,17 @@ torch.setnumthreads(opt.threads)
 print('Set nb of threads to ' .. torch.getnumthreads())
 
 print("Setting up evaluation dataset...")
-local features_file="/pool001/atitus/FastLID-DNN/data_prep/feats/features_evaluate_labeled"
-local lang2label = {outofset = 1, english = 2, german = 3, mandarin = 4}
+local features_file="/pool001/atitus/FastLID-DNN/data_prep/feats/" .. opt.languages .. "_evaluate"
+--local lang2label = {outofset = 1, english = 2, german = 3, mandarin = 4}
+local lang2label = {outofset = 1, english = 2, german = 3}
 
 -- Balance data
-local total_frames = 26326
+local total_frames = 26326      -- Amount in German, the minimum of this set
 local label2maxframes = torch.zeros(4)
 label2maxframes[lang2label["outofset"]] = total_frames
 label2maxframes[lang2label["english"]] = total_frames
 label2maxframes[lang2label["german"]] = total_frames
-label2maxframes[lang2label["mandarin"]] = total_frames
+--label2maxframes[lang2label["mandarin"]] = total_frames
 
 print("Loading neural network " .. opt.network .. "...")
 model = torch.load(opt.network)
@@ -104,5 +106,6 @@ for i=1,dataset:size() do
     end
         
     -- Print posteriors to our log
-    print("Frame " .. i .. " posteriors:" .. output_probs[lang2label["outofset"]] .. "," .. output_probs[lang2label["english"]] .. "," .. output_probs[lang2label["german"]] .. "," .. output_probs[lang2label["mandarin"]])
+    --print("Frame " .. i .. " posteriors:" .. output_probs[lang2label["outofset"]] .. "," .. output_probs[lang2label["english"]] .. "," .. output_probs[lang2label["german"]] .. "," .. output_probs[lang2label["mandarin"]])
+    print("Frame " .. i .. " posteriors:" .. output_probs[lang2label["outofset"]] .. "," .. output_probs[lang2label["english"]] .. "," .. output_probs[lang2label["german"]])
 end

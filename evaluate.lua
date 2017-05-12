@@ -7,11 +7,9 @@ local lre03DatasetReader = require "lre03DatasetReader"
 -- Parse command-line options
 local opt = lapp[[
    -n,--network       (string)              reload pretrained network
-   --selectedUtt                            utterance for which to print frame-level posteriors
    -g,--gpu                                 evaluate on GPU
-   --noOOS                                  do not evaluate Out-of-Set utterances
    -t,--threads       (default 4)           number of threads
-   --confidenceThreshold (default 0.0)      minimum frame posterior confidence to be considered for utterance
+   --languages        (string)              languages being used, delimited by "_"
 ]]
 
 if opt.gpu then
@@ -26,23 +24,17 @@ torch.setnumthreads(opt.threads)
 print('Set nb of threads to ' .. torch.getnumthreads())
 
 print("Setting up evaluation dataset...")
-local features_file="/pool001/atitus/FastLID-DNN/data_prep/feats/features_evaluate_labeled"
-local lang2label = {outofset = 1, english = 2, german = 3, mandarin = 4}
-
--- Force all data to be used
---local total_frames = 335583
+local features_file="/pool001/atitus/FastLID-DNN/data_prep/feats/" .. opt.languages .. "_evaluate"
+--local lang2label = {outofset = 1, english = 2, german = 3, mandarin = 4}
+local lang2label = {outofset = 1, english = 2, german = 3}
 
 -- Balance data
-local total_frames = 26326
+local total_frames = 26326      -- Count for German, the minimum in this label set
 local label2maxframes = torch.zeros(4)
 label2maxframes[lang2label["outofset"]] = total_frames
-if opt.noOOS then
-    print("No out-of-set languages being used")
-    label2maxframes[lang2label["outofset"]] = 0
-end
 label2maxframes[lang2label["english"]] = total_frames
 label2maxframes[lang2label["german"]] = total_frames
-label2maxframes[lang2label["mandarin"]] = total_frames
+--label2maxframes[lang2label["mandarin"]] = total_frames
 
 print("Loading neural network " .. opt.network .. "...")
 model = torch.load(opt.network)
@@ -73,11 +65,8 @@ local readCfg = {
 local dataset, label2framecount = lre03DatasetReader.read(readCfg)
 
 -- Set up confusion matrix
-if opt.noOOS then
-    labels = {2, 3, 4}
-else
-    labels = {1, 2, 3, 4}
-end
+--labels = {1, 2, 3, 4}
+labels = {1, 2, 3}
 local confusion = optim.ConfusionMatrix(labels)
 
 print("Testing neural network...")
@@ -85,6 +74,7 @@ local correct_frames = 0
 local utterance_output_avgs = {}        -- averaged output probabilities
 local utterance_labels = {}             -- correct utterance-level label
 local utterance_ids = {}                -- utterance IDs from NIST files
+local utterance_frame_counts = {}       -- frames seen so far for given utterance
 local utterance_count = 0
 
 local start_time = sys.clock()
@@ -96,21 +86,10 @@ if opt.gpu then
     input = input:cuda()
 end
 
--- Pick an utterance for which to print frame-level posteriors
-local selected_utt = opt.selectedUtt
-
--- Only add posteriors to our utterance level determination if they are reasonably confident
-local log_confidence_threshold = math.log(opt.confidenceThreshold)
-print("Using confidence threshold " .. opt.confidenceThreshold .. " (log " .. log_confidence_threshold .. ")")
-local confident_frame_counts = {}       -- current count of probabilities (used for averaging)
-
 for i=1,dataset:size() do
     local data = dataset[i]
     local features_tensor = data[1]
     local label = data[2]
-    if opt.noOOS then
-        label = label - 1   -- No OOS - shift over labels
-    end
     local utt = data[3]
 
     -- Load current features
@@ -131,15 +110,8 @@ for i=1,dataset:size() do
         end
     end
 
-    -- Evaluate this frame and convert negative log likelihoods to probabilities
-    --local output_nlls = model:forward(input)
-    --local output_probs = torch.exp(output_nlls)
+    -- Evaluate this frame
     local output_probs = model:forward(input)
-
-    if utt == selected_utt then
-        -- Print to our log
-        print("Frame " .. i .. " posteriors:" .. output_probs[lang2label["outofset"]] .. "," .. output_probs[lang2label["english"]] .. "," .. output_probs[lang2label["german"]] .. "," .. output_probs[lang2label["mandarin"]])
-    end
 
     local confidence_tensor, classification_tensor = torch.max(output_probs, 1)
     local confidence = confidence_tensor[1]
@@ -156,24 +128,17 @@ for i=1,dataset:size() do
         -- Create new entry
         utterance_count = utterance_count + 1
         utterance_labels[utterance_count] = label
-        if confidence >= log_confidence_threshold then
-            confident_frame_counts[utterance_count] = 1
-            utterance_output_avgs[utterance_count] = output_probs
-        else
-            confident_frame_counts[utterance_count] = 0
-            utterance_output_avgs[utterance_count] = torch.zeros(4):cuda()
-        end
+        utterance_frame_counts[utterance_count] = 1
+        utterance_output_avgs[utterance_count] = output_probs
         utterance_ids[utterance_count] = utt
         current_utterance = utt
     else
-        -- Update average if necessary
-        if confidence >= log_confidence_threshold then
-            local old_frame_count = confident_frame_counts[utterance_count]
-            local old_avg = utterance_output_avgs[utterance_count]
-            local new_avg = torch.mul(torch.add(output_probs, torch.mul(old_avg, old_frame_count)), 1.0 / (old_frame_count + 1))
-            utterance_output_avgs[utterance_count] = new_avg
-            confident_frame_counts[utterance_count] = confident_frame_counts[utterance_count] + 1
-        end
+        -- Update average
+        local old_frame_count = utterance_frame_counts[utterance_count]
+        local old_avg = utterance_output_avgs[utterance_count]
+        local new_avg = torch.mul(torch.add(output_probs, torch.mul(old_avg, old_frame_count)), 1.0 / (old_frame_count + 1))
+        utterance_output_avgs[utterance_count] = new_avg
+        utterance_frame_counts[utterance_count] = utterance_frame_counts[utterance_count] + 1
     end
 end
 

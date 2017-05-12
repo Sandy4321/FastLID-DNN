@@ -16,12 +16,10 @@ module load engaging/lua/5.3.2
 module load engaging/torch/20160128
 
 echo "EVALUATING DNN MODEL"
-model_name=1k_1k_512_64_1k_es
-#selected_utt=01yr       # English (apparently??)
-confidence_threshold=0.99
+languages=english_german
+model_name=1k_1k_512_64_1k_${languages}
 network=/pool001/atitus/FastLID-DNN/models/${model_name}
 threads=16
 echo "EVALUATING NETWORK WITH MODEL NAME ${model_name}"
-th evaluate.lua --network="${network}" --gpu -t $threads --confidenceThreshold="${confidence_threshold}"
-#th evaluate.lua --network="${network}" --gpu -t $threads --selectedUtt="${selected_utt}"
+th evaluate.lua --network="${network}" --gpu -t $threads --language="${languages}"
 echo "COMPLETED EVALUATION"

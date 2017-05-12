@@ -15,9 +15,10 @@ module load engaging/OpenBLAS/0.2.14
 module load engaging/lua/5.3.2
 module load engaging/torch/20160128
 
-model_name=1k_1k_512_64_1k_es
+languages=english_german
+model_name=1k_1k_512_64_1k_${languages}
 network=/pool001/atitus/FastLID-DNN/models/${model_name}
 threads=16
 echo "EVALUATING POSTERIORS FOR NETWORK WITH MODEL NAME ${model_name}"
-th posteriors.lua --network="${network}" --gpu -t $threads
+th posteriors.lua --network="${network}" --gpu -t $threads --languages="${languages}"
 echo "DONE EVALUATING POSTERIORS"
