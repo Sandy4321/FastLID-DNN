@@ -103,5 +103,5 @@ for i=1,dataset:size() do
         
     -- Print posteriors to our log
     --print("Frame " .. i .. " posteriors:" .. output_probs[lang2label["outofset"]] .. "," .. output_probs[lang2label["english"]] .. "," .. output_probs[lang2label["german"]] .. "," .. output_probs[lang2label["mandarin"]])
-    print("Frame " .. i .. " posteriors:" .. output_probs[lang2label["outofset"]] .. "," .. output_probs[lang2label["english"]] .. "," .. output_probs[lang2label["german"]])
+    print("Frame " .. i .. " posteriors:" .. output_probs[1] .. "," .. output_probs[2] .. "," .. output_probs[3])
 end
