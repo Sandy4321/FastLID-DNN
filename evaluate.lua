@@ -54,7 +54,8 @@ end
 local feature_dim = 39  -- 13 MFCCs, 13 delta MFCCS, 13 delta-delta MFCCs
 local context_frames = 20
 --local max_utterances = 359      -- English, German, Mandarin
-local max_utterances = 267      -- English, German
+--local max_utterances = 267      -- English, German
+local max_utterances = 273      -- German, Mandarin
 local readCfg = {
     features_file = features_file,
     lang2label = lang2label,
