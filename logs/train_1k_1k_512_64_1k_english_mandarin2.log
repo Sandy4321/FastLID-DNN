@@ -1,0 +1,205 @@
+TRAINING DNN MODEL
+TRAINING NETWORK WITH FILENAME /pool001/atitus/FastLID-DNN/models/1k_1k_512_64_1k_english_mandarin
+[?1034hSet nb of threads to 16	
+Loading existing neural network /pool001/atitus/FastLID-DNN/models/1k_1k_512_64_1k_english_mandarin...	
+Loaded existing neural network /pool001/atitus/FastLID-DNN/models/1k_1k_512_64_1k_english_mandarin	
+Loading existing optimizer state /pool001/atitus/FastLID-DNN/models/1k_1k_512_64_1k_english_mandarin...	
+Loaded existing optimizer state /pool001/atitus/FastLID-DNN/models/1k_1k_512_64_1k_english_mandarin	
+Using model:	
+nn.Sequential {
+  [input -> (1) -> (2) -> (3) -> (4) -> (5) -> (6) -> (7) -> (8) -> (9) -> (10) -> (11) -> (12) -> (13) -> (14) -> (15) -> (16) -> (17) -> output]
+  (1): nn.Linear(819 -> 1024)
+  (2): nn.Add
+  (3): nn.ReLU
+  (4): nn.Linear(1024 -> 1024)
+  (5): nn.Add
+  (6): nn.ReLU
+  (7): nn.Linear(1024 -> 512)
+  (8): nn.Add
+  (9): nn.ReLU
+  (10): nn.Linear(512 -> 64)
+  (11): nn.Add
+  (12): nn.ReLU
+  (13): nn.Linear(64 -> 1024)
+  (14): nn.Add
+  (15): nn.ReLU
+  (16): nn.Linear(1024 -> 3)
+  (17): nn.LogSoftMax
+}
+Using optimizer state:	
+{
+  v : CudaTensor - size: 2516552
+  m : CudaTensor - size: 2516552
+  t : 599298
+  denom : CudaTensor - size: 2516552
+}
+Convert network to CUDA	
+Loading validation dataset...	
+Reading dataset...	
+Done setting up dataset with 136743 datapoints across 444 utterances.	
+Utterances per language:	
+ 145
+ 145
+ 154
+   0
+[torch.DoubleTensor of size 4]
+
+Loaded validation dataset.	
+Loading training dataset...	
+Reading dataset...	
+Done setting up dataset with 2018674 datapoints across 1485 utterances.	
+Utterances per language:	
+ 647
+ 528
+ 310
+   0
+[torch.DoubleTensor of size 4]
+
+Loaded training dataset.	
+Training neural network using minibatch size 128...	
+Convert criterion to CUDA	
+================================	
+Epoch 1:	
+  time to learn 1 sample = 0.44354715214321ms	
+  time to learn all 2018674 samples = 895377.10380554ms	
+================================	
+Training confusion matrix:	
+ConfusionMatrix:
+[[  649615    8441   14143]   96.640% 	[class: 1]
+ [    8811  658971    6946]   97.665% 	[class: 2]
+ [   14194    7053  650500]]  96.837% 	[class: 3]
+ + average row correct: 97.047342856725% 
+ + average rowUcol correct (VOC measure): 94.268047809601% 
+ + global correct: 97.048161317776%
+Validating neural network...	
+================================	
+Frame-Level Validation:	
+  time to validate 1 sample = 1.177501180857ms	
+  time to validate all 136743 samples = 161015.04397392ms	
+  FER: 0.095332119377226	
+================================	
+ConfusionMatrix:
+[[   36043    3181    6421]   78.964% 	[class: 1]
+ [     613   44278     717]   97.084% 	[class: 2]
+ [    1397     707   43386]]  95.375% 	[class: 3]
+ + average row correct: 90.474130709966% 
+ + average rowUcol correct (VOC measure): 82.509978612264% 
+ + global correct: 90.466788062277%
+================================	
+Utterance-Level Validation:	
+  time to validate 1 utterance = 0.20583524360313ms	
+  time to validate all 444 utterances = 91.39084815979ms	
+  UER: 0.027027027027027	
+================================	
+ConfusionMatrix:
+[[     136       2       8]   93.151% 	[class: 1]
+ [       0     145       0]   100.000% 	[class: 2]
+ [       2       0     151]]  98.693% 	[class: 3]
+ + average row correct: 97.281165917714% 
+ + average rowUcol correct (VOC measure): 94.773389895757% 
+ + global correct: 97.297297297297%
+Done validating neural network.	
+Best validation FER so far 0.090768814491418, current FER 0.095332119377226	
+Generalization loss:	
+5.0273928456334	
+Saving current network state...	
+Saved.	
+Saving current optimizer state...	
+Saved.	
+================================	
+Epoch 2:	
+  time to learn 1 sample = 0.43789097153948ms	
+  time to learn all 2018674 samples = 883959.1190815ms	
+================================	
+Training confusion matrix:	
+ConfusionMatrix:
+[[  647654    9487   15058]   96.349% 	[class: 1]
+ [   10479  655234    9015]   97.111% 	[class: 2]
+ [   15000    7772  648975]]  96.610% 	[class: 3]
+ + average row correct: 96.689808368683% 
+ + average rowUcol correct (VOC measure): 93.595453103383% 
+ + global correct: 96.69035218168%
+Validating neural network...	
+================================	
+Frame-Level Validation:	
+  time to validate 1 sample = 1.177808223913ms	
+  time to validate all 136743 samples = 161057.02996254ms	
+  FER: 0.095646577886985	
+================================	
+ConfusionMatrix:
+[[   36902    3043    5700]   80.846% 	[class: 1]
+ [    1043   43893     672]   96.240% 	[class: 2]
+ [    1742     879   42869]]  94.238% 	[class: 3]
+ + average row correct: 90.441213051478% 
+ + average rowUcol correct (VOC measure): 82.491781314214% 
+ + global correct: 90.435342211301%
+================================	
+Utterance-Level Validation:	
+  time to validate 1 utterance = 0.24789625459963ms	
+  time to validate all 444 utterances = 110.06593704224ms	
+  UER: 0.02027027027027	
+================================	
+ConfusionMatrix:
+[[     140       2       4]   95.890% 	[class: 1]
+ [       0     145       0]   100.000% 	[class: 2]
+ [       3       0     150]]  98.039% 	[class: 3]
+ + average row correct: 97.976541519165% 
+ + average rowUcol correct (VOC measure): 96.046862999598% 
+ + global correct: 97.972972972973%
+Done validating neural network.	
+Best validation FER so far 0.090768814491418, current FER 0.095646577886985	
+Generalization loss:	
+5.3738317757011	
+Saving current network state...	
+Saved.	
+Saving current optimizer state...	
+Saved.	
+================================	
+Epoch 3:	
+  time to learn 1 sample = 0.43727752918109ms	
+  time to learn all 2018674 samples = 882720.77894211ms	
+================================	
+Training confusion matrix:	
+ConfusionMatrix:
+[[  649864    8901   13434]   96.677% 	[class: 1]
+ [    9241  658326    7161]   97.569% 	[class: 2]
+ [   13674    7177  650896]]  96.896% 	[class: 3]
+ + average row correct: 97.047473986944% 
+ + average rowUcol correct (VOC measure): 94.26739414533% 
+ + global correct: 97.048161317776%
+Validating neural network...	
+================================	
+Frame-Level Validation:	
+  time to validate 1 sample = 1.2419583009491ms	
+  time to validate all 136743 samples = 169829.10394669ms	
+  FER: 0.115581784808	
+================================	
+ConfusionMatrix:
+[[   35568    4172    5905]   77.923% 	[class: 1]
+ [    1142   43527     939]   95.437% 	[class: 2]
+ [    2193    1454   41843]]  91.983% 	[class: 3]
+ + average row correct: 88.447719812393% 
+ + average rowUcol correct (VOC measure): 79.1761358579% 
+ + global correct: 88.4418215192%
+================================	
+Utterance-Level Validation:	
+  time to validate 1 utterance = 0.16115270219408ms	
+  time to validate all 444 utterances = 71.55179977417ms	
+  UER: 0.02027027027027	
+================================	
+ConfusionMatrix:
+[[     141       1       4]   96.575% 	[class: 1]
+ [       0     145       0]   100.000% 	[class: 2]
+ [       4       0     149]]  97.386% 	[class: 3]
+ + average row correct: 97.986988226573% 
+ + average rowUcol correct (VOC measure): 96.073176463445% 
+ + global correct: 97.972972972973%
+Done validating neural network.	
+Best validation FER so far 0.090768814491418, current FER 0.115581784808	
+Generalization loss:	
+27.336448598131	
+============================	
+STOPPING EARLY	
+============================	
+Done training neural network.	
+COMPLETED TRAINING

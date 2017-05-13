@@ -18,11 +18,12 @@ module load engaging/torch/20160128
 echo "TRAINING DNN MODEL"
 epochs=100
 batchsize=128
-#network=/pool001/atitus/FastLID-DNN/models/1k_1k_512_64_1k_es
-#best_validation_fer=
 languages=english_mandarin
+network=/pool001/atitus/FastLID-DNN/models/1k_1k_512_64_1k_${languages}
+best_validation_fer=0.090768814491418
 filename=/pool001/atitus/FastLID-DNN/models/1k_1k_512_64_1k_${languages}
 threads=16
 echo "TRAINING NETWORK WITH FILENAME ${filename}"
-th train.lua --netFilename="${filename}" --gpu -e $epochs -t $threads -b $batchsize --earlyStopping --languages="${languages}"
+#th train.lua --netFilename="${filename}" --gpu -e $epochs -t $threads -b $batchsize --earlyStopping --languages="${languages}"
+th train.lua --netFilename="${filename}" --gpu -e $epochs -t $threads -b $batchsize --earlyStopping --languages="${languages}" -n ${network} --bestValidationFER="${best_validation_fer}"
 echo "COMPLETED TRAINING"
