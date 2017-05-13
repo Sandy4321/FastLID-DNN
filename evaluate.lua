@@ -25,7 +25,7 @@ print('Set nb of threads to ' .. torch.getnumthreads())
 
 print("Setting up evaluation dataset...")
 local features_file="/pool001/atitus/FastLID-DNN/data_prep/feats/" .. opt.languages .. "_evaluate"
-local lang2label = {outofset = 1, english = 2, german = 3, mandarin = 1}
+local lang2label = {outofset = 1, english = 1, german = 2, mandarin = 3}
 
 -- Balance data
 local total_frames = 26326      -- Count for German, the minimum in this label set
