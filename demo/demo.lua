@@ -38,6 +38,8 @@ local utterance_output_avg = torch.zeros(4)     -- averaged output probabilities
 local start_time = sys.clock()
 local input = torch.zeros(feature_dim * (context_frames + 1))
 
+local frame_count = 0
+
 for i=1,dataset:size() do
     local features_tensor = dataset[i]
 
@@ -59,19 +61,21 @@ for i=1,dataset:size() do
     
     -- Update average
     local old_avg = utterance_output_avg
-    utterance_output_avg = torch.mul(torch.add(output_probs, torch.mul(old_avg, frame_count)), 1.0 / (rame_count + 1))
+    utterance_output_avg = torch.mul(torch.add(output_probs, torch.mul(old_avg, frame_count)), 1.0 / (frame_count + 1))
     frame_count = frame_count + 1
 end
 
+local end_time = sys.clock()
+local elapsed_time = end_time - start_time
+
 -- Make an utterance-level classification
 local confidence_tensor, classification_tensor = torch.max(utterance_output_avg, 1)
-local confidence = confidence_tensor[1]
+local log_confidence = confidence_tensor[1]
+local confidence = math.exp(log_confidence)
 local classification = classification_tensor[1]
 
 -- Print time statistics for frame-level evaluation
-local end_time = sys.clock()
-local elapsed_time = end_time - start_time
 print("================================")
-print("Language is " .. classification .. " with confidence " .. confidence)
-print("time to evaluate = " .. (time_per_sample * 1000) .. "ms")
+print("Language is " .. classification .. " with confidence " .. (confidence * 100) .. "%")
+print("time to evaluate = " .. (elapsed_time * 1000) .. "ms")
 print("================================")

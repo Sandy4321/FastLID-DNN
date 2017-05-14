@@ -30,4 +30,4 @@ function featuresReader.read(features_file)
     return dataset
 end
 
-return lre03DatasetReader
+return featuresReader
