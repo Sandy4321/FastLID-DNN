@@ -1,12 +1,12 @@
 #!/bin/bash
 
 if [ $# -ne 3 ]; then
-    echo "Must specify wav file, network file, and number of languages"
+    echo "Must specify network file, wav file, number of languages"
     exit 1;
 fi
 
-wav_file=$1
-net_file=$2
+net_file=$1
+wav_file=$2
 num_langs=$3
 
 num_threads=4
