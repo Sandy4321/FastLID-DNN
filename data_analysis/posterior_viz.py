@@ -48,13 +48,11 @@ axes[0].set_ylabel("Audio Amplitude (16-bit quantized)")
 
 oos_line = axes[1].plot(range(posteriors.shape[0]), posteriors[:, 0], label="Out-of-Set")
 english_line = axes[1].plot(range(posteriors.shape[0]), posteriors[:, 1], label="English")
-# german_line = axes[1].plot(range(posteriors.shape[0]), posteriors[:, 2], label="German")
-# mandarin_line = axes[1].plot(range(posteriors.shape[0]), posteriors[:, 3], label="Mandarin")
-mandarin_line = axes[1].plot(range(posteriors.shape[0]), posteriors[:, 2], label="Mandarin")
+german_line = axes[1].plot(range(posteriors.shape[0]), posteriors[:, 2], label="German")
+mandarin_line = axes[1].plot(range(posteriors.shape[0]), posteriors[:, 3], label="Mandarin")
 axes[1].set_ylabel("Posterior Probability")
 
-# lines = oos_line + english_line + german_line + mandarin_line
-lines = oos_line + english_line + mandarin_line
+lines = oos_line + english_line + german_line + mandarin_line
 labels = [line.get_label() for line in lines]
 axes[1].legend(lines, labels)
 
