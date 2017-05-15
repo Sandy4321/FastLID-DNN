@@ -36,8 +36,8 @@ if opt.network == '' then
     -- Use historical frames as context in input vector
     local inputs = feature_dim * (context_frames + 1)
 
-    --outputs = 4       -- number of classes (three languages + OOS)
-    outputs = 3       -- number of classes (two languages + OOS)
+    outputs = 4       -- number of classes (three languages + OOS)
+    --outputs = 3       -- number of classes (two languages + OOS)
 
     local hidden_units_1 = 1024
     local hidden_units_2 = 1024
@@ -101,17 +101,18 @@ if opt.gpu then
     model = model:cuda()
 end
 
---local lang2label = {outofset = 1, english = 2, german = 3, mandarin = 4}
-local lang2label = {outofset = 1, english = 2, german = 1, mandarin = 3}
+local lang2label = {outofset = 1, english = 2, german = 3, mandarin = 4}
+--local lang2label = {outofset = 1, english = 2, german = 1, mandarin = 3}
 
 -- Load the validation dataset
 print("Loading validation dataset...")
-local validate_file="/pool001/atitus/FastLID-DNN/data_prep/feats/" .. opt.languages .. "_validate"
+--local validate_file="/pool001/atitus/FastLID-DNN/data_prep/feats/" .. opt.languages .. "_validate"
+local validate_file="/pool001/atitus/FastLID-DNN/data_prep/feats_nodither/" .. opt.languages .. "_validate"
 
 -- Balance the data
 local label2maxframes = torch.zeros(4)
---local min_frames = 22022        -- Count for German, the minimum in this label set
-local min_frames = 45490        -- Count for Mandarin, the minimum in this label set
+local min_frames = 22022        -- Count for German, the minimum in this label set
+--local min_frames = 45490        -- Count for Mandarin, the minimum in this label set
 label2maxframes[lang2label["outofset"]] = min_frames
 label2maxframes[lang2label["english"]] = min_frames
 label2maxframes[lang2label["german"]] = min_frames
@@ -129,7 +130,8 @@ print("Loaded validation dataset.")
 
 -- Load the training dataset
 print("Loading training dataset...")
-local train_file="/pool001/atitus/FastLID-DNN/data_prep/feats/" .. opt.languages .. "_train"
+--local train_file="/pool001/atitus/FastLID-DNN/data_prep/feats/" .. opt.languages .. "_train"
+local train_file="/pool001/atitus/FastLID-DNN/data_prep/feats_nodither/" .. opt.languages .. "_train"
 
 -- Balance the data
 local label2maxframes = torch.zeros(4)
@@ -159,8 +161,8 @@ if opt.gpu then
 end
 
 -- Set up confusion matrices
---labels = {lang2label["outofset"], lang2label["english"], lang2label["german"], lang2label["mandarin"]}
-labels = {lang2label["outofset"], lang2label["english"], lang2label["mandarin"]}
+labels = {lang2label["outofset"], lang2label["english"], lang2label["german"], lang2label["mandarin"]}
+--labels = {lang2label["outofset"], lang2label["english"], lang2label["mandarin"]}
 local train_confusion = optim.ConfusionMatrix(labels)
 local validate_confusion = optim.ConfusionMatrix(labels)
 
@@ -366,10 +368,10 @@ for epoch = 1,opt.epochs do
     local start_time = sys.clock()
 
     local correct_utterances = 0
-    --local max_utterances = 284  -- Total in validation set (English, German, Mandarin)
+    local max_utterances = 284  -- Total in validation set (English, German, Mandarin)
     --local max_utterances = 211  -- Total in validation set (English, German)
     --local max_utterances = 214  -- Total in validation set (German, Mandarin)
-    local max_utterances = 444  -- Total in validation set (English, Mandarin)
+    --local max_utterances = 444  -- Total in validation set (English, Mandarin)
     for i=1,max_utterances do
         -- Test whole utterance
         local label = utterance_labels[i]
