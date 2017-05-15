@@ -69,10 +69,11 @@ local end_time = sys.clock()
 local elapsed_time = end_time - start_time
 
 -- Make an utterance-level classification
+local langs = {"Out-of-Set", "English", "German", "Mandarin Chinese"}
 local confidence_tensor, classification_tensor = torch.max(utterance_output_avg, 1)
 local log_confidence = confidence_tensor[1]
 local confidence = math.exp(log_confidence)
-local classification = classification_tensor[1]
+local classification = langs[tonumber(classification_tensor[1])]
 
 -- Print time statistics for frame-level evaluation
 print("================================")

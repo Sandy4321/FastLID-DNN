@@ -16,6 +16,9 @@ demo_dir=`pwd`
 data_prep_dir=$demo_dir/../data_prep/
 cd $data_prep_dir
 source path.sh
+
+# Clean out the old features before generating features
+rm -r $data_prep_dir/wav_feats
 ./run.sh prep 3 $wav_file
 feat_file=$data_prep_dir/wav_feats/features.ark
 
