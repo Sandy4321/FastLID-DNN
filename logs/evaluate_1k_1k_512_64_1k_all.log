@@ -1,0 +1,374 @@
+EVALUATING DNN MODEL
+EVALUATING NETWORK WITH MODEL NAME 1k_1k_512_64_1k_all
+[?1034hSet nb of threads to 16	
+Setting up evaluation dataset...	
+Loading neural network /pool001/atitus/FastLID-DNN/models/1k_1k_512_64_1k_all...	
+Loaded neural network /pool001/atitus/FastLID-DNN/models/1k_1k_512_64_1k_all	
+Using model:	
+nn.Sequential {
+  [input -> (1) -> (2) -> (3) -> (4) -> (5) -> (6) -> (7) -> (8) -> (9) -> (10) -> (11) -> (12) -> (13) -> (14) -> (15) -> (16) -> (17) -> output]
+  (1): nn.Linear(819 -> 1024)
+  (2): nn.Add
+  (3): nn.ReLU
+  (4): nn.Linear(1024 -> 1024)
+  (5): nn.Add
+  (6): nn.ReLU
+  (7): nn.Linear(1024 -> 512)
+  (8): nn.Add
+  (9): nn.ReLU
+  (10): nn.Linear(512 -> 64)
+  (11): nn.Add
+  (12): nn.ReLU
+  (13): nn.Linear(64 -> 1024)
+  (14): nn.Add
+  (15): nn.ReLU
+  (16): nn.Linear(1024 -> 13)
+  (17): nn.LogSoftMax
+}
+Convert network to CUDA	
+Reading dataset...	
+Done setting up dataset with 263097 datapoints across 895 utterances.	
+Utterances per language:	
+  0
+ 75
+ 74
+ 76
+ 78
+ 72
+ 74
+ 72
+ 76
+ 75
+ 73
+ 76
+ 74
+[torch.DoubleTensor of size 13]
+
+Testing neural network...	
+Convert input tensor to CUDA	
+================================	
+Frame-Level Testing:	
+  time to evaluate 1 sample = 1.1929259962501ms	
+  time to evaluate all 263097 samples = 313855.25083542ms	
+  FER: 0.56077036226183	
+================================	
+ConfusionMatrix:
+[[       0       0       0       0       0       0       0       0       0       0       0       0       0]   nan% 	[class: 1]
+ [       0   12997     840     690    1042     749    1071     741    1042     365     601    1431     557]   58.741% 	[class: 2]
+ [       0     924   11089    1170    1014     814    1142    1044    1090     404     827    1716     677]   50.609% 	[class: 3]
+ [       0    1870    1292    4005    1749    1736    1604    1077    2000    1872    1142    2709     824]   18.304% 	[class: 4]
+ [       0    1100     572     860   12051     726     979     759    1608     275     899    1536     667]   54.698% 	[class: 5]
+ [       0     988     719     703     944   12231    1317     816    1495     292     602    1188     451]   56.245% 	[class: 6]
+ [       0    1111     861     778     843    1146   11259     918    1379     531     829    1696     630]   51.222% 	[class: 7]
+ [       0    1102    1006     894     997     972    1021   11337    1238     432     783    1391     711]   51.805% 	[class: 8]
+ [       0     958     878     782    1172     611     933     810   12502     245    1216    1160     661]   57.014% 	[class: 9]
+ [       0    1718    1319    1366    1855    1595    1720    1298    2798    2785    1848    2577    1193]   12.618% 	[class: 10]
+ [       0     906     965    1020    1047     645     963     748    1989     710   10592    1342     958]   48.398% 	[class: 11]
+ [       0    2268    1367    1470    1783    1561    1508    1262    1778    1015    1190    5582     976]   25.653% 	[class: 12]
+ [       0    1476     961     923    1167     904    1161     848    1881     295    1534    1612    9130]]  41.705% 	[class: 13]
+ + average row correct: 43.917579079668% 
+ + average rowUcol correct (VOC measure): 28.016263432801% 
+ + global correct: 43.922963773817%
+Incorrectly classified 6 utterance 01eh as 8	
+Incorrectly classified 12 utterance 01eo as 2	
+Incorrectly classified 4 utterance 01er as 10	
+Incorrectly classified 7 utterance 01et as 6	
+Incorrectly classified 11 utterance 01fi as 3	
+Incorrectly classified 12 utterance 01ft as 6	
+Incorrectly classified 6 utterance 01fx as 8	
+Incorrectly classified 4 utterance 01fy as 8	
+Incorrectly classified 4 utterance 01gd as 3	
+Incorrectly classified 10 utterance 01gt as 2	
+Incorrectly classified 5 utterance 01gz as 9	
+Incorrectly classified 9 utterance 01h6 as 2	
+Incorrectly classified 4 utterance 01hh as 5	
+Incorrectly classified 12 utterance 01hq as 9	
+Incorrectly classified 9 utterance 01hx as 11	
+Incorrectly classified 12 utterance 01i6 as 7	
+Incorrectly classified 12 utterance 01ia as 6	
+Incorrectly classified 4 utterance 01id as 8	
+Incorrectly classified 11 utterance 01in as 4	
+Incorrectly classified 11 utterance 01iv as 10	
+Incorrectly classified 11 utterance 01iy as 3	
+Incorrectly classified 7 utterance 01iz as 8	
+Incorrectly classified 10 utterance 01j3 as 4	
+Incorrectly classified 13 utterance 01j5 as 2	
+Incorrectly classified 4 utterance 01j6 as 11	
+Incorrectly classified 10 utterance 01j7 as 3	
+Incorrectly classified 10 utterance 01jc as 9	
+Incorrectly classified 9 utterance 01jo as 13	
+Incorrectly classified 10 utterance 01k6 as 2	
+Incorrectly classified 10 utterance 01k7 as 12	
+Incorrectly classified 10 utterance 01kb as 9	
+Incorrectly classified 8 utterance 01ko as 3	
+Incorrectly classified 12 utterance 01kt as 13	
+Incorrectly classified 4 utterance 01l3 as 12	
+Incorrectly classified 5 utterance 01ld as 9	
+Incorrectly classified 10 utterance 01lg as 3	
+Incorrectly classified 7 utterance 01lm as 11	
+Incorrectly classified 4 utterance 01lr as 12	
+Incorrectly classified 4 utterance 01m0 as 12	
+Incorrectly classified 4 utterance 01m6 as 5	
+Incorrectly classified 10 utterance 01mb as 6	
+Incorrectly classified 4 utterance 01mg as 12	
+Incorrectly classified 10 utterance 01mh as 11	
+Incorrectly classified 10 utterance 01mk as 11	
+Incorrectly classified 8 utterance 01mo as 12	
+Incorrectly classified 9 utterance 01mt as 8	
+Incorrectly classified 4 utterance 01mu as 6	
+Incorrectly classified 4 utterance 01mz as 9	
+Incorrectly classified 13 utterance 01n8 as 12	
+Incorrectly classified 3 utterance 01n9 as 12	
+Incorrectly classified 10 utterance 01nh as 9	
+Incorrectly classified 13 utterance 01ni as 12	
+Incorrectly classified 4 utterance 01nk as 12	
+Incorrectly classified 4 utterance 01nn as 3	
+Incorrectly classified 12 utterance 01og as 2	
+Incorrectly classified 10 utterance 01oh as 13	
+Incorrectly classified 12 utterance 01oj as 11	
+Incorrectly classified 10 utterance 01op as 9	
+Incorrectly classified 6 utterance 01os as 12	
+Incorrectly classified 7 utterance 01ow as 13	
+Incorrectly classified 8 utterance 01p0 as 9	
+Incorrectly classified 2 utterance 01p2 as 7	
+Incorrectly classified 4 utterance 01p3 as 10	
+Incorrectly classified 5 utterance 01p5 as 3	
+Incorrectly classified 10 utterance 01ps as 9	
+Incorrectly classified 10 utterance 01pz as 8	
+Incorrectly classified 12 utterance 01q3 as 2	
+Incorrectly classified 3 utterance 01qe as 12	
+Incorrectly classified 5 utterance 01qp as 12	
+Incorrectly classified 10 utterance 01qq as 11	
+Incorrectly classified 8 utterance 01qr as 12	
+Incorrectly classified 8 utterance 01rg as 9	
+Incorrectly classified 12 utterance 01ri as 2	
+Incorrectly classified 3 utterance 01rm as 13	
+Incorrectly classified 12 utterance 01ro as 10	
+Incorrectly classified 13 utterance 01rt as 11	
+Incorrectly classified 3 utterance 01ru as 11	
+Incorrectly classified 12 utterance 01rv as 2	
+Incorrectly classified 12 utterance 01rx as 3	
+Incorrectly classified 4 utterance 01ry as 8	
+Incorrectly classified 10 utterance 01s0 as 11	
+Incorrectly classified 7 utterance 01sh as 9	
+Incorrectly classified 12 utterance 01sj as 2	
+Incorrectly classified 4 utterance 01sm as 9	
+Incorrectly classified 10 utterance 01sq as 2	
+Incorrectly classified 10 utterance 01t2 as 9	
+Incorrectly classified 10 utterance 01t3 as 12	
+Incorrectly classified 8 utterance 01td as 9	
+Incorrectly classified 7 utterance 01ty as 6	
+Incorrectly classified 13 utterance 01u5 as 9	
+Incorrectly classified 3 utterance 01uf as 7	
+Incorrectly classified 2 utterance 01ug as 12	
+Incorrectly classified 12 utterance 01us as 9	
+Incorrectly classified 10 utterance 01uu as 12	
+Incorrectly classified 3 utterance 01ux as 9	
+Incorrectly classified 4 utterance 01uy as 6	
+Incorrectly classified 9 utterance 01uz as 3	
+Incorrectly classified 7 utterance 01v1 as 12	
+Incorrectly classified 10 utterance 01v2 as 12	
+Incorrectly classified 9 utterance 01vb as 13	
+Incorrectly classified 9 utterance 01vg as 11	
+Incorrectly classified 4 utterance 01vn as 9	
+Incorrectly classified 13 utterance 01vo as 12	
+Incorrectly classified 3 utterance 01vs as 8	
+Incorrectly classified 2 utterance 01w0 as 12	
+Incorrectly classified 6 utterance 01w1 as 2	
+Incorrectly classified 3 utterance 01wd as 2	
+Incorrectly classified 13 utterance 01wo as 3	
+Incorrectly classified 4 utterance 01wr as 9	
+Incorrectly classified 4 utterance 01wt as 9	
+Incorrectly classified 4 utterance 01x8 as 6	
+Incorrectly classified 4 utterance 01xe as 12	
+Incorrectly classified 10 utterance 01xo as 6	
+Incorrectly classified 10 utterance 01xr as 2	
+Incorrectly classified 4 utterance 01y4 as 12	
+Incorrectly classified 2 utterance 01y9 as 12	
+Incorrectly classified 2 utterance 01yd as 12	
+Incorrectly classified 6 utterance 01yp as 8	
+Incorrectly classified 10 utterance 01yr as 12	
+Incorrectly classified 4 utterance 01yu as 10	
+Incorrectly classified 10 utterance 01z4 as 9	
+Incorrectly classified 4 utterance 01zt as 10	
+Incorrectly classified 12 utterance 0203 as 9	
+Incorrectly classified 10 utterance 0204 as 12	
+Incorrectly classified 12 utterance 0206 as 11	
+Incorrectly classified 7 utterance 0207 as 12	
+Incorrectly classified 4 utterance 020l as 11	
+Incorrectly classified 4 utterance 0216 as 12	
+Incorrectly classified 4 utterance 021c as 10	
+Incorrectly classified 12 utterance 021k as 2	
+Incorrectly classified 11 utterance 021n as 9	
+Incorrectly classified 11 utterance 021w as 12	
+Incorrectly classified 10 utterance 0223 as 3	
+Incorrectly classified 12 utterance 0228 as 7	
+Incorrectly classified 7 utterance 022k as 12	
+Incorrectly classified 10 utterance 022v as 9	
+Incorrectly classified 13 utterance 0231 as 8	
+Incorrectly classified 10 utterance 0239 as 9	
+Incorrectly classified 12 utterance 023g as 13	
+Incorrectly classified 7 utterance 023h as 10	
+Incorrectly classified 11 utterance 023q as 9	
+Incorrectly classified 11 utterance 023s as 12	
+Incorrectly classified 10 utterance 023y as 4	
+Incorrectly classified 10 utterance 0245 as 9	
+Incorrectly classified 12 utterance 0248 as 13	
+Incorrectly classified 10 utterance 024a as 11	
+Incorrectly classified 3 utterance 024b as 11	
+Incorrectly classified 4 utterance 024c as 10	
+Incorrectly classified 10 utterance 024q as 11	
+Incorrectly classified 4 utterance 024t as 12	
+Incorrectly classified 12 utterance 024u as 5	
+Incorrectly classified 4 utterance 0251 as 12	
+Incorrectly classified 10 utterance 0254 as 9	
+Incorrectly classified 10 utterance 025b as 12	
+Incorrectly classified 4 utterance 0264 as 10	
+Incorrectly classified 10 utterance 026a as 13	
+Incorrectly classified 3 utterance 026p as 4	
+Incorrectly classified 12 utterance 0274 as 11	
+Incorrectly classified 4 utterance 0279 as 10	
+Incorrectly classified 4 utterance 027g as 6	
+Incorrectly classified 6 utterance 027i as 7	
+Incorrectly classified 2 utterance 027t as 6	
+Incorrectly classified 11 utterance 027w as 13	
+Incorrectly classified 4 utterance 0280 as 6	
+Incorrectly classified 4 utterance 028b as 12	
+Incorrectly classified 13 utterance 028c as 4	
+Incorrectly classified 3 utterance 028e as 9	
+Incorrectly classified 10 utterance 028f as 12	
+Incorrectly classified 13 utterance 028i as 11	
+Incorrectly classified 4 utterance 028o as 12	
+Incorrectly classified 12 utterance 028w as 6	
+Incorrectly classified 13 utterance 0298 as 8	
+Incorrectly classified 9 utterance 029b as 12	
+Incorrectly classified 12 utterance 029i as 10	
+Incorrectly classified 2 utterance 02a8 as 12	
+Incorrectly classified 8 utterance 02ab as 6	
+Incorrectly classified 4 utterance 02ao as 2	
+Incorrectly classified 10 utterance 02az as 5	
+Incorrectly classified 10 utterance 02b7 as 9	
+Incorrectly classified 12 utterance 02b8 as 9	
+Incorrectly classified 10 utterance 02bf as 13	
+Incorrectly classified 11 utterance 02c7 as 9	
+Incorrectly classified 4 utterance 02c8 as 2	
+Incorrectly classified 13 utterance 02cb as 7	
+Incorrectly classified 10 utterance 02cc as 9	
+Incorrectly classified 11 utterance 02d4 as 10	
+Incorrectly classified 6 utterance 02dg as 2	
+Incorrectly classified 10 utterance 02dk as 9	
+Incorrectly classified 3 utterance 02dn as 6	
+Incorrectly classified 4 utterance 02dp as 9	
+Incorrectly classified 10 utterance 02em as 12	
+Incorrectly classified 4 utterance 02ep as 2	
+Incorrectly classified 11 utterance 02eq as 7	
+Incorrectly classified 12 utterance 02ey as 6	
+Incorrectly classified 4 utterance 02f9 as 11	
+Incorrectly classified 12 utterance 02fd as 2	
+Incorrectly classified 11 utterance 02fh as 13	
+Incorrectly classified 7 utterance 02fj as 11	
+Incorrectly classified 6 utterance 02fr as 7	
+Incorrectly classified 10 utterance 02fw as 9	
+Incorrectly classified 10 utterance 02gb as 6	
+Incorrectly classified 12 utterance 02gf as 2	
+Incorrectly classified 9 utterance 02gi as 6	
+Incorrectly classified 10 utterance 02h2 as 6	
+Incorrectly classified 11 utterance 02h9 as 9	
+Incorrectly classified 8 utterance 02hg as 3	
+Incorrectly classified 3 utterance 02hh as 8	
+Incorrectly classified 12 utterance 02hi as 8	
+Incorrectly classified 6 utterance 02ht as 5	
+Incorrectly classified 4 utterance 02hw as 10	
+Incorrectly classified 12 utterance 02i7 as 3	
+Incorrectly classified 4 utterance 02il as 8	
+Incorrectly classified 12 utterance 02j0 as 7	
+Incorrectly classified 13 utterance 02j8 as 9	
+Incorrectly classified 12 utterance 02ja as 13	
+Incorrectly classified 12 utterance 02jb as 13	
+Incorrectly classified 4 utterance 02jh as 3	
+Incorrectly classified 11 utterance 02jo as 5	
+Incorrectly classified 11 utterance 02jp as 9	
+Incorrectly classified 10 utterance 02jq as 13	
+Incorrectly classified 10 utterance 02jr as 3	
+Incorrectly classified 10 utterance 02jw as 6	
+Incorrectly classified 4 utterance 02jx as 2	
+Incorrectly classified 3 utterance 02k2 as 7	
+Incorrectly classified 10 utterance 02kb as 12	
+Incorrectly classified 4 utterance 02kl as 12	
+Incorrectly classified 9 utterance 02ks as 8	
+Incorrectly classified 10 utterance 02kv as 9	
+Incorrectly classified 12 utterance 02le as 8	
+Incorrectly classified 4 utterance 02lf as 6	
+Incorrectly classified 10 utterance 02lg as 7	
+Incorrectly classified 10 utterance 02lh as 9	
+Incorrectly classified 9 utterance 02lp as 7	
+Incorrectly classified 7 utterance 02lz as 9	
+Incorrectly classified 12 utterance 02m6 as 11	
+Incorrectly classified 10 utterance 02mb as 11	
+Incorrectly classified 4 utterance 02mx as 7	
+Incorrectly classified 4 utterance 02n1 as 5	
+Incorrectly classified 6 utterance 02nd as 7	
+Incorrectly classified 10 utterance 02nn as 11	
+Incorrectly classified 4 utterance 02np as 8	
+Incorrectly classified 10 utterance 02nu as 12	
+Incorrectly classified 10 utterance 02nx as 9	
+Incorrectly classified 6 utterance 02o4 as 9	
+Incorrectly classified 11 utterance 02o6 as 12	
+Incorrectly classified 10 utterance 02of as 9	
+Incorrectly classified 4 utterance 02or as 2	
+Incorrectly classified 4 utterance 02pg as 6	
+Incorrectly classified 13 utterance 02ph as 4	
+Incorrectly classified 12 utterance 02pi as 2	
+Incorrectly classified 4 utterance 02pm as 2	
+Incorrectly classified 4 utterance 02pr as 3	
+Incorrectly classified 4 utterance 02pw as 12	
+Incorrectly classified 7 utterance 02qa as 9	
+Incorrectly classified 10 utterance 02qg as 13	
+Incorrectly classified 3 utterance 02qh as 12	
+Incorrectly classified 8 utterance 02qm as 7	
+Incorrectly classified 4 utterance 02qu as 12	
+Incorrectly classified 4 utterance 02qw as 12	
+Incorrectly classified 9 utterance 02r2 as 12	
+Incorrectly classified 7 utterance 02r4 as 6	
+Incorrectly classified 8 utterance 02re as 6	
+Incorrectly classified 4 utterance 02rg as 10	
+Incorrectly classified 12 utterance 02rl as 6	
+Incorrectly classified 10 utterance 02rn as 9	
+Incorrectly classified 10 utterance 02rp as 8	
+Incorrectly classified 12 utterance 02rv as 9	
+Incorrectly classified 7 utterance 01x4 as 4	
+Incorrectly classified 13 utterance 0256 as 9	
+Incorrectly classified 2 utterance 02c3 as 12	
+Incorrectly classified 5 utterance 02hc as 9	
+Incorrectly classified 11 utterance 02hw as 9	
+Incorrectly classified 11 utterance 02kq as 9	
+Incorrectly classified 6 utterance 02p0 as 12	
+Incorrectly classified 13 utterance 02y8 as 3	
+Incorrectly classified 2 utterance 02zo as 7	
+Incorrectly classified 11 utterance 030x as 13	
+Incorrectly classified 8 utterance 033k as 6	
+================================	
+Utterance-Level Testing:	
+  time to evaluate 1 utterance = 0.11958543148787ms	
+  time to evaluate all 895 utterances = 107.02896118164ms	
+  UER: 0.31061452513966	
+================================	
+ConfusionMatrix:
+[[       0       0       0       0       0       0       0       0       0       0       0       0       0]   nan% 	[class: 1]
+ [       0      66       0       0       0       1       2       0       0       0       0       6       0]   88.000% 	[class: 2]
+ [       0       1      59       1       0       1       2       2       2       0       2       3       1]   79.730% 	[class: 3]
+ [       0       6       4      15       3       7       1       5       6      10       3      16       0]   19.737% 	[class: 4]
+ [       0       0       1       0      73       0       0       0       3       0       0       1       0]   93.590% 	[class: 5]
+ [       0       2       0       0       1      60       3       3       1       0       0       2       0]   83.333% 	[class: 6]
+ [       0       0       0       1       0       3      59       1       3       1       2       3       1]   79.730% 	[class: 7]
+ [       0       0       2       0       0       3       1      61       3       0       0       2       0]   84.722% 	[class: 8]
+ [       0       1       1       0       0       1       1       2      64       0       2       2       2]   84.211% 	[class: 9]
+ [       0       4       4       2       1       5       1       2      20      12       8      11       5]   16.000% 	[class: 10]
+ [       0       0       2       1       1       0       1       0       7       2      53       3       3]   72.603% 	[class: 11]
+ [       0      10       2       0       1       5       3       2       5       2       4      37       5]   48.684% 	[class: 12]
+ [       0       1       2       2       0       0       1       2       3       0       2       3      58]]  78.378% 	[class: 13]
+ + average row correct: 69.05978731811% 
+ + average rowUcol correct (VOC measure): 53.224556768934% 
+ + global correct: 68.938547486034%
+Done evaluating neural network.	
+COMPLETED EVALUATION

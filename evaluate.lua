@@ -36,7 +36,7 @@ local total_frames = 21746      -- Count for Korean, the minimum of all language
 --local label2maxframes = torch.zeros(4)
 local label2maxframes = torch.zeros(13)
 for lang, label in pairs(lang2label) do
-    label2maxframes[label] = min_frames
+    label2maxframes[label] = total_frames
 end
 
 --label2maxframes[lang2label["outofset"]] = total_frames
@@ -66,7 +66,7 @@ local context_frames = 20
 --local max_utterances = 267      -- English, German
 --local max_utterances = 273      -- German, Mandarin
 --local max_utterances = 486      -- English, Mandarin
-local max_utterances = 0      -- All languages in set
+local max_utterances = 895      -- All languages in set
 local readCfg = {
     features_file = features_file,
     lang2label = lang2label,
