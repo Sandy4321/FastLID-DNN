@@ -42,7 +42,7 @@ if [ $# -ne 3 ]; then
     data=`pwd`/data
     data_train=$data/train_${utt_duration}
     data_test=$data/test_${utt_duration}
-    featdir=`pwd`/feats_${utt_duration}_nodither
+    featdir=`pwd`/feats_${utt_duration}_all
 
     if [ $stage -le 1 ]; then
         echo "Preparing data..."

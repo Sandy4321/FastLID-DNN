@@ -20,9 +20,12 @@ function lre03DatasetReader.read(cfg)
         require "cunn"
     end
 
-    local languages = {"outofset", "english", "german", "mandarin"}
-    local label2framecount = torch.zeros(4)      -- Assumes max language set size is 3 (see paper)
-    local label2uttcount = torch.zeros(4)      -- Assumes max language set size is 3 (see paper)
+    --local languages = {"outofset", "english", "german", "mandarin"}
+    --local label2framecount = torch.zeros(4)      -- Assumes max language set size is 3 (see paper)
+    --local label2uttcount = torch.zeros(4)      -- Assumes max language set size is 3 (see paper)
+    local languages = {"outofset", "vietnamese", "tamil", "spanish", "farsi", "korean", "japanese", "hindi", "french", "english", "german", "mandarin", "arabic"}
+    local label2framecount = torch.zeros(13)      -- Full language set
+    local label2uttcount = torch.zeros(13)      -- Full language set
 
     local feature_dim = 39  -- 13 MFCCs, 13 delta MFCCS, 13 delta-delta MFCCs
 
@@ -48,7 +51,8 @@ function lre03DatasetReader.read(cfg)
 
         -- Check if we should bail
         local bail = true
-        for lang_idx = 1, 4 do
+        --for lang_idx = 1, 4 do
+        for lang_idx = 1, 13 do
             local current_label = cfg.lang2label[languages[lang_idx]]
             if label2framecount[current_label] < cfg.label2maxframes[current_label] then
                 -- Still have room for frames in this label

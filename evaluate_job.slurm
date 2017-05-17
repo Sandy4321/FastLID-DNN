@@ -16,7 +16,7 @@ module load engaging/lua/5.3.2
 module load engaging/torch/20160128
 
 echo "EVALUATING DNN MODEL"
-languages=english_mandarin
+languages=all
 model_name=1k_1k_512_64_1k_${languages}
 network=/pool001/atitus/FastLID-DNN/models/${model_name}
 threads=16

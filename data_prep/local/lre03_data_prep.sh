@@ -59,7 +59,8 @@ n=`cat $dir/test_${utt_duration}.flist | wc -l`
 cp $lre03_test/${utt_duration}/seg_lang.ndx $dir/test_${utt_duration}_lang.ndx
 
 # Mark the languages we care about --- all others are out-of-set
-languages=( english german mandarin )
+# languages=( english german mandarin )
+languages=( vietnamese tamil spanish farsi korean japanese hindi french english german mandarin arabic )
 
 
 # Set up training and test files

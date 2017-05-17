@@ -53,7 +53,10 @@ data_prep/feats_nodither/*
 data_prep/feats_3_nodither/*
 data_prep/feats_10_nodither/*
 data_prep/feats_30_nodither/*
-data_prep/feats_3_10/*
+data_prep/feats_all/*
+data_prep/feats_3_all/*
+data_prep/feats_10_all/*
+data_prep/feats_30_all/*
 data_prep/wav_feats/*
 models/*
 old/models/*

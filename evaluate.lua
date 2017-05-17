@@ -24,17 +24,25 @@ torch.setnumthreads(opt.threads)
 print('Set nb of threads to ' .. torch.getnumthreads())
 
 print("Setting up evaluation dataset...")
-local features_file="/pool001/atitus/FastLID-DNN/data_prep/feats/" .. opt.languages .. "_evaluate"
-local lang2label = {outofset = 1, english = 2, german = 1, mandarin = 3}
+--local features_file="/pool001/atitus/FastLID-DNN/data_prep/feats/" .. opt.languages .. "_evaluate"
+local features_file="/pool001/atitus/FastLID-DNN/data_prep/feats_all/" .. opt.languages .. "_evaluate"
+--local lang2label = {outofset = 1, english = 2, german = 3, mandarin = 4}
+local lang2label = {outofset = 1, vietnamese = 2, tamil = 3, spanish = 4, farsi = 5, korean = 6, japanese = 7, hindi = 8, french = 9, english = 10, german = 11, mandarin = 12, arabic = 13}
 
 -- Balance data
+local total_frames = 21746      -- Count for Korean, the minimum of all languages in set
 --local total_frames = 26326      -- Count for German, the minimum in this label set
-local total_frames = 47907      -- Amount in Mandarin, the minimum of this language set
-local label2maxframes = torch.zeros(4)
-label2maxframes[lang2label["outofset"]] = total_frames
-label2maxframes[lang2label["english"]] = total_frames
-label2maxframes[lang2label["german"]] = total_frames
-label2maxframes[lang2label["mandarin"]] = total_frames
+--local total_frames = 47907      -- Amount in Mandarin, the minimum of this language set
+--local label2maxframes = torch.zeros(4)
+local label2maxframes = torch.zeros(13)
+for lang, label in pairs(lang2label) do
+    label2maxframes[label] = min_frames
+end
+
+--label2maxframes[lang2label["outofset"]] = total_frames
+--label2maxframes[lang2label["english"]] = total_frames
+--label2maxframes[lang2label["german"]] = total_frames
+--label2maxframes[lang2label["mandarin"]] = total_frames
 
 print("Loading neural network " .. opt.network .. "...")
 model = torch.load(opt.network)
@@ -57,7 +65,8 @@ local context_frames = 20
 --local max_utterances = 359      -- English, German, Mandarin
 --local max_utterances = 267      -- English, German
 --local max_utterances = 273      -- German, Mandarin
-local max_utterances = 486      -- English, Mandarin
+--local max_utterances = 486      -- English, Mandarin
+local max_utterances = 0      -- All languages in set
 local readCfg = {
     features_file = features_file,
     lang2label = lang2label,
@@ -68,7 +77,8 @@ local readCfg = {
 local dataset, label2framecount = lre03DatasetReader.read(readCfg)
 
 -- Set up confusion matrix
-labels = {1, 2, 3}
+--labels = {1, 2, 3, 4}
+labels = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13}
 local confusion = optim.ConfusionMatrix(labels)
 
 print("Testing neural network...")
